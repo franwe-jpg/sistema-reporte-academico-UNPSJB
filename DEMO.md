@@ -23,12 +23,15 @@ DB_URL=sqlite:///./demo.db
 
 ## 2. Arrancar
 
+Si ya tenes tu forma de levantar back y front, usala: lo unico que importa es
+que el backend quede en el puerto 8000 y el frontend en el 5173.
+
+`./demo.sh` es solo un atajo que levanta los dos juntos y corta los dos con
+`Ctrl+C`:
+
 ```bash
 ./demo.sh
 ```
-
-Levanta el backend en `http://localhost:8000` y el frontend en
-`http://localhost:5173`. `Ctrl+C` corta los dos.
 
 > El backend acepta CORS **solo** desde `http://localhost:5173`. Usá
 > `localhost`, nunca `127.0.0.1`, o el navegador va a bloquear cada pedido.
@@ -38,7 +41,7 @@ Levanta el backend en `http://localhost:8000` y el frontend en
 Desde otra terminal, **sin cortar nada**:
 
 ```bash
-backend/venv/bin/python backend/scripts/reset_demo.py
+./reset.sh
 ```
 
 Tarda menos de un segundo. Usa la API de backup de SQLite para sobrescribir la

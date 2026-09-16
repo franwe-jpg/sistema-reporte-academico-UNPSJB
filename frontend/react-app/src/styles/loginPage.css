@@ -1,0 +1,39 @@
+/* Fondo de pantalla */
+.login-background {
+  height: 100vh;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+/* Capa oscura encima del fondo */
+.login-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.35);
+  z-index: 0;
+}
+
+.login-form-container {
+  position: relative;
+  z-index: 10;
+  width: 380px;
+  transition: all 0.8s ease;
+  background-color: #f0f8ff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+/* Estado inicial (antes de animarse) */
+.login-form-start {
+  transform: translateY(-80px);
+  opacity: 0;
+}
+
+/* Estado final (animado) */
+.login-form-animate {
+  transform: translateY(0);
+  opacity: 1;
+}

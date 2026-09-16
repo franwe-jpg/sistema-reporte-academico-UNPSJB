@@ -1,4 +1,4 @@
-// EstadisticasDepartamentoPage.tsx — Demo sin charts externos
+import { useState } from "react";
 import {
   Container,
   Row,
@@ -7,264 +7,256 @@ import {
   Table,
   Badge,
   ProgressBar,
-  ListGroup,
+  Spinner,
+  Alert,
+  Form,
+  ButtonGroup,
+  Button // Importamos ButtonGroup
 } from "react-bootstrap";
+import { useEstadisticasDepartamento } from "../hook/useEstadisticasDepartamento";
 
-// ====== Datos hardcodeados (simulados) ======
-const indicadores = [
-  { titulo: "Asignaturas evaluadas", valor: 14, bg: "primary" as const },
-  { titulo: "Docentes participantes", valor: 26, bg: "info" as const },
-  { titulo: "Clases dictadas (prom.)", valor: "92%", bg: "success" as const },
-  { titulo: "Satisfacción general", valor: "84%", bg: "warning" as const },
-];
+// --- HELPERS DE ESTILO ---
+const getColorByLabel = (label: string) => {
+  const l = label.toLowerCase();
+  if (l.includes("excelente") || l.includes("muy") || l.includes("si")) return "#198754";
+  if (l.includes("bueno") || l.includes("satisfactorio")) return "#0d6efd";
+  if (l.includes("regular")) return "#ffc107";
+  if (l.includes("malo") || l.includes("no")) return "#dc3545";
+  return "#6c757d";
+};
 
-const dimensiones = [
-  { nombre: "Comunicación", valor: 80 },
-  { nombre: "Metodología", valor: 75 },
-  { nombre: "Evaluación", valor: 90 },
-  { nombre: "Actuación", valor: 85 },
-];
+const getBadgeVariant = (severidad: string) => {
+  switch (severidad) {
+    case "Alta": return "danger";
+    case "Media": return "warning";
+    default: return "success";
+  }
+};
 
-const valoraciones = [
-  { label: "E", valor: 12, color: "#198754" }, // Excelente
-  { label: "MB", valor: 31, color: "#0d6efd" }, // Muy bueno
-  { label: "B", valor: 22, color: "#6c757d" }, // Bueno
-  { label: "R", valor: 5, color: "#ffc107" }, // Regular
-  { label: "I", valor: 1, color: "#dc3545" }, // Insuficiente
-];
+const getTextColor = (bg: string) => {
+  switch (bg) {
+    case "primary": return "text-primary";
+    case "success": return "text-success";
+    case "info": return "text-info";
+    case "warning": return "text-warning";
+    default: return "text-dark";
+  }
+};
 
-const alertas = [
-  {
-    tipo: "Equipamiento",
-    asignatura: "Arquitectura de Computadoras",
-    detalle: "Proyector en mal estado",
-    severidad: "Alta",
-  },
-  {
-    tipo: "Contenidos",
-    asignatura: "Análisis y Diseño de Sistemas",
-    detalle: "80% contenidos desarrollados",
-    severidad: "Media",
-  },
-];
+// --- COMPONENTE DONUT ---
+const DonutManual = ({ data }: { data: { label: string; valor: number }[] }) => {
+  const total = data.reduce((acc, v) => acc + v.valor, 0);
+  if (total === 0) return <div className="text-center py-5 text-muted">Sin datos</div>;
 
-const keywords = ["motivación", "proyectores", "conectividad", "asistencia"];
-
-const topAsignaturas = [
-  { nombre: "Programación I", alumnos: 120, avance: 95 },
-  { nombre: "Arquitectura de Computadoras", alumnos: 88, avance: 82 },
-  { nombre: "Análisis y Diseño de Sistemas", alumnos: 73, avance: 80 },
-  { nombre: "Base de Datos", alumnos: 65, avance: 90 },
-];
-
-// ====== Utilidades visuales ======
-function DonutValoraciones() {
-  // construimos el conic-gradient según los porcentajes
-  const total = valoraciones.reduce((acc, v) => acc + v.valor, 0);
   let acc = 0;
-  const stops = valoraciones.map((v) => {
-    const desde = (acc / total) * 360;
+  const stops = data.map((v) => {
+    const color = getColorByLabel(v.label);
+    const start = (acc / total) * 360;
     acc += v.valor;
-    const hasta = (acc / total) * 360;
-    return `${v.color} ${desde}deg ${hasta}deg`;
+    const end = (acc / total) * 360;
+    return `${color} ${start}deg ${end}deg`;
   });
 
-  const donutStyle: React.CSSProperties = {
-    width: 180,
-    height: 180,
-    borderRadius: "50%",
-    background: `conic-gradient(${stops.join(",")})`,
-    position: "relative",
-    margin: "0 auto",
-    boxShadow: "0 0 0 6px #fff, 0 0 0 8px rgba(0,0,0,0.06)",
-  };
-
-  const holeStyle: React.CSSProperties = {
-    position: "absolute",
-    inset: 20,
-    borderRadius: "50%",
-    background: "#fff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: 700,
-    color: "#333",
-  };
-
   return (
-    <div>
-      <div style={donutStyle}>
-        <div style={holeStyle}>Valoraciones</div>
+    <div className="d-flex flex-column align-items-center">
+      <div style={{
+          width: 180, height: 180, borderRadius: "50%",
+          background: `conic-gradient(${stops.join(", ")})`,
+          position: "relative"
+      }}>
+        <div style={{
+            position: "absolute", inset: 30, background: "white", borderRadius: "50%",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#333"
+        }}>
+          <span className="h3 mb-0 fw-bold">{total}</span>
+          <small className="text-muted">Votos</small>
+        </div>
       </div>
-      <ListGroup className="mt-3">
-        {valoraciones.map((v) => (
-          <ListGroup.Item
-            key={v.label}
-            className="d-flex justify-content-between align-items-center"
-          >
-            <span className="d-flex align-items-center gap-2">
-              <span
-                style={{
-                  width: 12,
-                  height: 12,
-                  background: v.color,
-                  borderRadius: 2,
-                  display: "inline-block",
-                }}
-              />
-              {v.label}
-            </span>
-            <span className="fw-semibold">{v.valor}</span>
-          </ListGroup.Item>
+      <div className="d-flex flex-wrap justify-content-center gap-2 mt-3">
+        {data.map((v, i) => (
+          <div key={i} className="d-flex align-items-center gap-1 small">
+             <span style={{width: 10, height: 10, backgroundColor: getColorByLabel(v.label), borderRadius: "50%"}}></span>
+             <span className="fw-bold">{v.label}</span>
+             <span className="text-muted">({Math.round(v.valor/total*100)}%)</span>
+          </div>
         ))}
-      </ListGroup>
+      </div>
     </div>
   );
-}
+};
 
 export default function EstadisticasDepartamentoPage() {
+  // Filtros
+  const [ciclo, setCiclo] = useState(2025);
+  const [cuatrimestre, setCuatrimestre] = useState("todos");
+  // Estado para los botones de Ciclo (Básico / Superior)
+  const [nivel, setNivel] = useState("todos"); 
+
+  const { data, loading, error } = useEstadisticasDepartamento(ciclo, cuatrimestre, nivel);
+
+  if (loading) return <Container className="mt-5 text-center"><Spinner animation="border" variant="primary"/></Container>;
+  if (error) return <Container className="mt-5"><Alert variant="danger">{error}</Alert></Container>;
+  if (!data) return <Container className="mt-5"><Alert variant="info">No hay datos.</Alert></Container>;
+
   return (
     <Container className="my-4">
-      <h2 className="mb-4 text-center">Dashboard de Estadísticas</h2>
+      
+      <div className="d-flex flex-wrap justify-content-between align-items-end mb-4 border-bottom pb-3 gap-3">
+        <div>
+            <h2 className="text-primary fw-bold mb-1">Estadisticas Facultad de Ingenieria</h2>
+        </div>
+        
+        <div className="d-flex flex-wrap align-items-end gap-3">
+            
+            {/* --- BOTONES DE CICLO (NIVEL) --- */}
+            <Form.Group>
+                <Form.Label className="d-block small text-muted fw-bold mb-1">Nivel / Ciclo</Form.Label>
+                <ButtonGroup>
+                    <Button 
+                        variant={nivel === "todos" ? "primary" : "outline-primary"}
+                        size="sm"
+                        onClick={() => setNivel("todos")}
+                    >
+                        Todos
+                    </Button>
+                    <Button 
+                        variant={nivel === "basico" ? "primary" : "outline-primary"}
+                        size="sm"
+                        onClick={() => setNivel("basico")}
+                    >
+                        Ciclo Básico
+                    </Button>
+                    <Button 
+                        variant={nivel === "superior" ? "primary" : "outline-primary"}
+                        size="sm"
+                        onClick={() => setNivel("superior")}
+                    >
+                        Ciclo Superior
+                    </Button>
+                </ButtonGroup>
+            </Form.Group>
+
+            {/* Filtro Cuatrimestre */}
+            <Form.Group>
+                <Form.Label className="small text-muted fw-bold mb-1">Período</Form.Label>
+                <Form.Select size="sm" value={cuatrimestre} onChange={(e) => setCuatrimestre(e.target.value)} style={{width: '150px'}}>
+                    <option value="todos">Todo el año</option>
+                    <option value="cuatrimestre1">1° Cuatrimestre</option> {/* Sin espacio */}
+                    <option value="cuatrimestre2">2° Cuatrimestre</option> {/* Sin espacio */}
+                </Form.Select>
+            </Form.Group>
+
+            {/* Filtro Año */}
+            <Form.Group>
+                <Form.Label className="small text-muted fw-bold mb-1">Año</Form.Label>
+                <Form.Select size="sm" value={ciclo} onChange={(e) => setCiclo(Number(e.target.value))} style={{width: '90px'}}>
+                    <option value={2025}>2025</option>
+                    <option value={2024}>2024</option>
+                </Form.Select>
+            </Form.Group>
+        </div>
+      </div>
 
       {/* KPIs */}
-      <Row className="g-4 mb-4">
-        {indicadores.map((item, idx) => (
-          <Col key={idx} xs={12} md={6} lg={3}>
-            <Card bg={item.bg} text="white" className="shadow-sm">
-              <Card.Body className="text-center">
-                <Card.Title className="fs-6">{item.titulo}</Card.Title>
-                <div className="display-6 fw-bold">{item.valor}</div>
+      <Row className="g-3 mb-4">
+        {data.indicadores.map((item, idx) => (
+          <Col key={idx} md={3}>
+            <Card className="shadow-sm border h-100 text-center py-2">
+              <Card.Body>
+                <small className="text-muted fw-bold text-uppercase">{item.titulo}</small>
+                <div className={`display-6 fw-bold mt-1 ${getTextColor(idx === 3 ? 'warning' : idx === 2 ? 'success' : 'primary')}`}>
+                    {item.valor}
+                </div>
               </Card.Body>
             </Card>
           </Col>
         ))}
       </Row>
-
-      {/* Dimensiones (progress bars) + Donut CSS */}
-      <Row className="mb-4">
+      {/* Gráficos */}
+      <Row className="mb-4 g-4">
         <Col lg={8}>
-          <Card className="shadow-sm h-100">
+          <Card className="shadow-sm border h-100">
+            <Card.Header className="bg-white fw-bold text-primary">Participación por Variable</Card.Header>
             <Card.Body>
-              <Card.Title>Promedio por dimensión de encuesta</Card.Title>
-              <div className="mt-3">
-                {dimensiones.map((d) => (
-                  <div key={d.nombre} className="mb-3">
-                    <div className="d-flex justify-content-between">
-                      <strong>{d.nombre}</strong>
-                      <span className="text-muted">{d.valor}%</span>
-                    </div>
-                    <ProgressBar now={d.valor} label={`${d.valor}%`} />
+              {data.dimensiones.length === 0 ? <p className="text-muted text-center py-5">Sin datos para este nivel.</p> : 
+               data.dimensiones.map((d) => (
+                <div key={d.nombre} className="mb-3">
+                  <div className="d-flex justify-content-between small mb-1">
+                    <span className="fw-bold">{d.nombre}</span>
+                    <span>{d.valor}%</span>
                   </div>
-                ))}
-              </div>
+                  <ProgressBar now={d.valor} variant="primary" style={{height: "8px"}} />
+                </div>
+              ))}
             </Card.Body>
           </Card>
         </Col>
-
-        <Col lg={4} className="mt-4 mt-lg-0">
-          <Card className="shadow-sm h-100">
-            <Card.Body>
-              <Card.Title>Valoraciones de auxiliares</Card.Title>
-              <DonutValoraciones />
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Top asignaturas (mini “cards” con barra de avance) */}
-      <Row className="mb-4">
-        <Col>
-          <Card className="shadow-sm">
-            <Card.Body>
-              <Card.Title>Asignaturas destacadas</Card.Title>
-              <Row className="g-3 mt-1">
-                {topAsignaturas.map((a) => (
-                  <Col key={a.nombre} xs={12} md={6} lg={3}>
-                    <Card className="border-0 shadow-sm h-100">
-                      <Card.Body>
-                        <div
-                          className="fw-semibold text-truncate"
-                          title={a.nombre}
-                        >
-                          {a.nombre}
-                        </div>
-                        <div className="text-muted small">
-                          Alumnos: {a.alumnos}
-                        </div>
-                        <div className="mt-2">
-                          <div className="d-flex justify-content-between small">
-                            <span>Avance</span>
-                            <span>{a.avance}%</span>
-                          </div>
-                          <ProgressBar now={a.avance} />
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
+        <Col lg={4}>
+          <Card className="shadow-sm border h-100">
+            <Card.Header className="bg-white fw-bold text-primary">Valoraciones</Card.Header>
+            <Card.Body className="d-flex align-items-center justify-content-center">
+              <DonutManual data={data.valoraciones} />
             </Card.Body>
           </Card>
         </Col>
       </Row>
-
-      {/* Alertas + Términos */}
-      <Row>
-        <Col lg={8}>
-          <Card className="shadow-sm">
-            <Card.Body>
-              <Card.Title>Alertas y observaciones</Card.Title>
-              <Table striped bordered hover responsive className="mb-0">
-                <thead>
-                  <tr>
-                    <th>Tipo</th>
-                    <th>Asignatura</th>
-                    <th>Detalle</th>
-                    <th>Severidad</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {alertas.map((a, i) => (
-                    <tr key={i}>
-                      <td>{a.tipo}</td>
-                      <td>{a.asignatura}</td>
-                      <td>{a.detalle}</td>
-                      <td>
-                        <Badge
-                          bg={
-                            a.severidad === "Alta"
-                              ? "danger"
-                              : a.severidad === "Media"
-                              ? "warning"
-                              : "success"
-                          }
-                        >
-                          {a.severidad}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Card.Body>
+       <br />
+      {/* Top Asignaturas */}
+      <h5 className="text-primary fw-bold mb-3 border-bottom pb-2">Asignaturas con Mayor Participación</h5>
+      <Row className="g-3 mb-4">
+        {data.top_asignaturas.length === 0 ? <Col><p className="text-muted">No hay asignaturas en este nivel.</p></Col> :
+         data.top_asignaturas.map((a, i) => (
+          <Col key={i} md={3}>
+            <div className="p-3 border rounded bg-light h-100 shadow-sm">
+              <div className="fw-bold text-truncate" title={a.nombre}>{a.nombre}</div>
+              <small className="text-muted d-block mb-2">Inscriptos (Est.): {a.alumnos}</small>
+              <div className="d-flex justify-content-between small fw-bold">
+                <span>Participación</span>
+                <span className="text-success">{a.avance}%</span>
+              </div>
+              <ProgressBar now={a.avance} variant="success" style={{height: "5px"}} />
+            </div>
+          </Col>
+        ))}
+      </Row>
+        <br />
+      {/* Alertas */}
+      <Row className="g-4">
+        <Col lg={12}>
+          <Card className="shadow-sm border h-100">
+            <Card.Header className="bg-white d-flex justify-content-between align-items-center">
+                 <h5 className="text-primary fw-bold mb-0">Alertas y Observaciones</h5>
+                 {data.alertas.length > 0 && <Badge bg="danger" pill>{data.alertas.length}</Badge>}
+            </Card.Header>
+            <Table hover responsive className="mb-0 align-middle text-center small">
+                 <thead className="table-light">
+                    <tr><th>Tipo</th><th>Asignatura</th><th>Detalle</th><th>Severidad</th></tr>
+                 </thead>
+                 <tbody>
+                    {data.alertas.length === 0 ? <tr><td colSpan={4} className="text-muted py-3">Sin alertas activas.</td></tr> :
+                     data.alertas.map((a, i) => (
+                        <tr key={i}>
+                            <td className="fw-semibold">{a.tipo}</td>
+                            <td>{a.asignatura}</td>
+                            <td className="text-start text-muted">{a.detalle}</td>
+                            <td><Badge bg={getBadgeVariant(a.severidad)}>{a.severidad}</Badge></td>
+                        </tr>
+                     ))}
+                 </tbody>
+            </Table>
           </Card>
         </Col>
-
-        <Col lg={4} className="mt-4 mt-lg-0">
-          <Card className="shadow-sm h-100">
+        {/* <Col lg={4}>
+          <Card className="shadow-sm border h-100">
+            <Card.Header className="bg-white"><h5 className="text-primary fw-bold mb-0">Términos</h5></Card.Header>
             <Card.Body>
-              <Card.Title>Términos recurrentes</Card.Title>
-              <div className="d-flex flex-wrap gap-2 mt-2">
-                {keywords.map((kw, i) => (
-                  <Badge key={i} bg="secondary" pill>
-                    {kw}
-                  </Badge>
-                ))}
+              <div className="d-flex flex-wrap gap-2 justify-content-center">
+                {data.keywords.length === 0 ? <span className="text-muted">Sin comentarios.</span> :
+                 data.keywords.map((kw, i) => <Badge key={i} bg="secondary" className="fw-normal">{kw}</Badge>)}
               </div>
             </Card.Body>
           </Card>
-        </Col>
+        </Col> */}
       </Row>
     </Container>
   );

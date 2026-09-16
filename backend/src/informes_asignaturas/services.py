@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload, selectinload
 from src.informes_asignaturas.models import InformeAsignatura
 from src.informes_asignaturas import schemas
+from typing import List
 
 # (Asegúrate de importar todos los modelos necesarios)
 from src.informes_asignaturas.models import InformeAsignatura
@@ -18,7 +19,7 @@ from src.informes_curriculares_base.models import InformeCurricularBase
 def _get_query_con_joins():
     return select(InformeAsignatura).options(
         # Carga Asignatura
-        joinedload(InformeAsignatura.asignatura),
+        joinedload(InformeAsignatura.asignatura).joinedload(Asignatura.carrera),
         
         # Carga Informe Base + Preguntas + Opciones
         joinedload(InformeAsignatura.informe_curricular_base).options(
@@ -49,6 +50,12 @@ def crear_informe_asignatura(db: Session, informe: schemas.InformeAsignaturaCrea
     db.commit()
     db.refresh(_informe)
     return _informe
+
+def listar_informes_respondidos_docente(db: Session, persona_id: int) -> list[InformeAsignatura]:
+    query = _get_query_con_joins().join(Respuesta, InformeAsignatura.respuesta) \
+            .filter(Respuesta.id_persona == persona_id)
+            
+    return db.scalars(query).unique().all()
 
 def leer_informe_asignatura(db: Session, informe_id: int)-> schemas.InformeAsignaturaRead:
     db_informe = db.scalar(select(InformeAsignatura).where(InformeAsignatura.id == informe_id))

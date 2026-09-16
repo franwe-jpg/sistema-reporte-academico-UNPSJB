@@ -24,3 +24,4 @@ class Asignatura(ModeloBase):
     
     encuestas_asignaturas = relationship("EncuestaAsignatura", back_populates="asignatura")
     informes_asignaturas = relationship("InformeAsignatura", back_populates="asignatura")
+    cursadas = relationship("Cursada", back_populates="asignatura")

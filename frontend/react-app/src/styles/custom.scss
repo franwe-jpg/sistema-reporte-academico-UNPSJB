@@ -1,34 +1,64 @@
-/* src/styles/custom.scss */
 
-// --- 1. IMPORTA FUNCIONES PRIMERO ---
 @import "bootstrap/scss/functions";
 
 
-// --- 2. DEFINE TUS VARIABLES PERSONALIZADAS ---
 $azul-unpsjb: #004a99;
 $amarillo-unpsjb: #FFC72C;
-$gris-claro: #e1dede; // Este es el $gray-100 de Bootstrap
+$gris-claro: #e1dede; 
 
 
-// --- 3. MAPEA TUS VARIABLES PRINCIPALES ---
+
 $primary:       $azul-unpsjb;
 $light:         $gris-claro;
 
-// --- ¡AQUÍ ESTÁ EL CAMBIO! ---
-// Define el color de fondo de toda la página
-
-//$body-bg: $gris-claro; 
-
-// --- FIN DEL CAMBIO ---
-
-
-// --- 4. IMPORTA LAS VARIABLES DE BOOTSTRAP ---
 @import "bootstrap/scss/variables";
 
 
-// --- 5. MAPEA EL RESTO DE TUS VARIABLES ---
-$secondary:     $gray-600; // El gris para el botón "Anterior"
+
+$secondary:     $gray-600; 
 
 
-// --- 6. IMPORTA TODO BOOTSTRAP (AL FINAL) ---
+
 @import "bootstrap/scss/bootstrap";
+
+.navbar-dark {
+    .navbar-nav .nav-link {
+        // Estilo para los links normaless
+        color: rgba(255, 255, 255, 0.75); // Un blanco semitransparente
+
+        &.active {
+        // Estilo SÓLO para el link .active
+        color: #FFFFFF; // Blanco puro
+        font-weight: 700; // Negrita
+        }
+    }
+}
+
+// ... imports anteriores ...
+
+// --- CORRECCIÓN VISUAL PARA TABS ---
+.nav-tabs {
+  border-bottom: 1px solid $gray-300; // Línea base suave
+
+  .nav-link {
+    // 1. Estado Normal (No seleccionado)
+    color: $gray-600; // Gris para las que no estás viendo (menos distracciones)
+    font-weight: 500;
+    border: 1px solid transparent; // Mantiene el espacio para que no "salte" al hover
+    
+    // 2. Estado Hover (Al pasar el mouse)
+    &:hover {
+      color: $primary; // Se pone azul al pasar el mouse
+      border-color: $gray-200 $gray-200 $gray-300;
+    }
+
+    // 3. Estado ACTIVO (La pestaña seleccionada)
+    &.active {
+      color: $primary !important; // <--- ¡AQUÍ ESTÁ EL CAMBIO! (Azul UNPSJB)
+      background-color: $white;   // Fondo blanco
+      border-color: $gray-300 $gray-300 $white; // Borde gris, pero abajo blanco para "unirse"
+      border-bottom: 2px solid $white; // Truco visual para tapar la línea de abajo
+      font-weight: 700; // Un poco más gordita para destacar
+    }
+  }
+}

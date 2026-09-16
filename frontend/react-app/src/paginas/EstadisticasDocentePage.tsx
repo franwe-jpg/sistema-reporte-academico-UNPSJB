@@ -13,8 +13,7 @@ type PreguntaPonderada = { texto: string; valor: number; variableNombre: string 
 type VariableProcesada = { nombre: string; color: string; promedio: number; preguntas: PreguntaPonderada[] };
 type RawSummaryVariableData = { opciones?: Opcion[] };
 
-// --- CONSTANTES Y FUNCIÓN DE PONDERACIÓN ---
-// Tabla de pesos para cada opción de respuesta
+
 const WEIGHTS: Record<string, number> = {
   'si': 100, 'no': 0, 'npo | no puedo opinar': 50,
   'suficientes': 100, 'escasos': 0,
@@ -23,7 +22,7 @@ const WEIGHTS: Record<string, number> = {
   'una': 50, 'más de una': 50,
 };
 
-// Calcula el score ponderado de una lista de opciones
+
 function calcularScorePorOpciones(opciones: Opcion[]): number {
   let weightedSum = 0;
   for (const op of opciones) {
@@ -34,8 +33,7 @@ function calcularScorePorOpciones(opciones: Opcion[]): number {
   return Math.round(weightedSum / 100);
 }
 
-// --- ADAPTADOR DE RESUMEN ---
-// Transforma el resumen bruto en variables procesadas con promedio y preguntas
+
 function transformarResumenEnVariables(resumen: {
   resumen_por_variable: Record<string, VariableResumen>;
   resultados_por_pregunta: Record<string, ResultadoPorPregunta>;
@@ -124,7 +122,7 @@ export default function EstadisticasDocentePage() {
   const [rankingSource, setRankingSource] = useState<'general' | string>('general');
   const [comparisonYear, setComparisonYear] = useState<number>(new Date().getFullYear() - 1);
 
-  const inscriptos = 10;
+  const inscriptos = 2;
 
   // --- EFECTO DE CARGA INICIAL ---
   useEffect(() => {
@@ -371,7 +369,9 @@ const renderComparativaSection = () => {
 
   return (
     <Container className="my-4">
-      <h2 className="mb-4 text-center">Estadísticas por Materia</h2>
+      <div className="text-center mb-4">
+          <h2 className="text-primary fw-bold m-0">Estadisticas {reporteCompleto?.encuesta_asignatura?.asignatura?.nombre}</h2>
+      </div>
       
       {/* 1. Indicadores Clave (KPIs) - Altura reducida con py-2 */}
       <Row className="g-4 mb-4">

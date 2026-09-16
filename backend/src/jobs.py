@@ -22,7 +22,7 @@ def check_deadlines():
     db: Session = SessionLocal()
     try:        
         today = date.today()
-        #today = date(2025, 8, 15)  # Descomentar para pruebas con fecha fija
+        #today = date(2025, 12, 31)  # Descomentar para pruebas con fecha fija
         
         log.info(f"Ejecutando check_deadlines (Fecha: {today})...")
         
@@ -71,7 +71,7 @@ def start_scheduler():
     if not _scheduler.running:
         # CONFIGURACIÓN DEL INTERVALO:
         # Ejemplos: hours=24, minutes=30, seconds=30
-        _scheduler.add_job(check_deadlines, 'interval', hours=24, id="check_deadlines_job")
+        _scheduler.add_job(check_deadlines, 'interval', hours=10000, id="check_deadlines_job")
         
         _scheduler.start()
         log.info("Scheduler iniciado (configurado en src/jobs.py).")

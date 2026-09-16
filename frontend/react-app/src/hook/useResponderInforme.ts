@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
-
-const API_URL = "http://localhost:8000";
+import { apiFetch } from "../api/client";
 
 export function useResponderInforme() {
   const [answersByPreguntaOpcion, setAnswersByPreguntaOpcion] = useState<
@@ -32,7 +31,7 @@ export function useResponderInforme() {
         detalles,
       };
 
-      const res = await fetch(`${API_URL}/respuestas/`, {
+      const res = await apiFetch("/respuestas/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -48,7 +47,10 @@ export function useResponderInforme() {
       }
 
       if (!res.ok) {
-        throw new Error("No se pudieron guardar las respuestas del informe");
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          data.detail || "No se pudieron guardar las respuestas del informe"
+        );
       }
 
       const data = await res.json();

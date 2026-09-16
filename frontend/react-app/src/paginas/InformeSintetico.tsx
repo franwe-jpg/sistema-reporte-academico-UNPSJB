@@ -11,7 +11,7 @@ const findRespuestaPorPreguntaId = (
   if (!respuesta || !respuesta.detalles) {
     return <em className="text-muted">Sin Respuesta</em>;
   }
-  // ... (Tu lógica de findRespuesta se mantiene)
+
   const detalle = respuesta.detalles.find(
     (d) => d.pregunta_opcion?.id_pregunta === preguntaId
   );
@@ -43,18 +43,12 @@ export default function InformeSintetico() {
 
   return (
     <Container>
-      {/* 1. Grid consistente (sin sombra) */}
       <Col md={10} lg={8} className="mx-auto mt-4">
-        
-        {/* 2. Card de Cabecera (con tema y estilo estándar) */}
-        <Card className="mb-4 border rounded shadow-sm bg-white">
+        <Card className="mb-4 border rounded shadow-sm">
           <Card.Header as="h4" className="bg-primary text-white">
             Informe Sintético - {informe.carrera.nombre}
           </Card.Header>
           <Card.Body className="p-4 ">
-            <Card.Title as="h4" className="m-2">
-              {informe.informe_sintetico_base.titulo}
-            </Card.Title>
             <Card.Text as="div" className="text-start">
               <p>
                 <strong>Ciclo Lectivo:</strong> {informe.ciclo_lectivo}
@@ -72,7 +66,7 @@ export default function InformeSintetico() {
           </Card.Body>
         </Card>
 
-        {/* 3. Card de TABS (con tema y estilo estándar) */}
+
         <Card className="mb-4 border rounded shadow-sm">
           <Card.Header as="h5" className="bg-primary text-white">
             Detalle por Asignatura
@@ -94,7 +88,7 @@ export default function InformeSintetico() {
                     eventKey={informeAsignatura.id.toString()}
                     title={informeAsignatura.asignatura?.nombre || "Asignatura"}
                   >
-                    {/* 4. Contenido del Tab LIMPIO (sin card-in-card) */}
+
                     <div className="py-3">
                       <div className="p-3 bg-light rounded mb-3">
                         <strong>Docente:</strong> {informeAsignatura.docente} | 
@@ -104,7 +98,6 @@ export default function InformeSintetico() {
 
                       {preguntas.length > 0 ? (
                         preguntas.map((pregunta) => (
-                          // 5. Patrón de separador consistente
                           <div key={pregunta.id} className="border-top py-3">
                             <h6 className="fw-bold">
                               {pregunta.texto_pregunta}
@@ -132,13 +125,13 @@ export default function InformeSintetico() {
           </Card.Body>
         </Card>
 
-        {/* 6. Card de Formulario (con tema y estilo estándar) */}
+
         <Card className="mb-4 border rounded shadow-sm">
-          <Card.Header as="h5" className="bg-light">
+          <Card.Header as="h5" className="bg-primary text-white">
             Comentarios Finales
           </Card.Header>
           <Card.Body className="p-4">
-            {/* 7. Tu Formulario Original */}
+
             <Form className="mb-0">
               <Form.Group controlId="comentariosGenerales">
                 <Form.Label className="fw-bold">
@@ -151,7 +144,6 @@ export default function InformeSintetico() {
                 ></Form.Control>
               </Form.Group>
 
-              {/* 8. Botón/Link con RUTA CORREGIDA */}
               <Link
                 to={`/departamento/informe-sintetico/${informe.id}`}
                 className="btn btn-primary btn-lg mt-4"

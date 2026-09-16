@@ -1,27 +1,30 @@
-from pydantic import BaseModel, EmailStr
-from typing import List
-
-# Los siguientes schemas contienen atributos sin muchas restricciones de tipo.
-# Podemos crear atributos con ciertas reglas mediante el uso de un "Field" adecuado.
-# https://docs.pydantic.dev/latest/concepts/fields/
-
+from typing import Optional, List
+from pydantic import BaseModel, EmailStr, Field
 
 class PersonaBase(BaseModel):
+    apellido: str
     nombre: str
+    dni: int
+    telefono: str
     email: EmailStr
+    contacto_emergencia: str
 
 
 class PersonaCreate(PersonaBase):
-    pass
+    # contraseña en texto plano SOLO para creación
+    password: str = Field(min_length=4, max_length=128)
 
 
-class PersonaUpdate(PersonaBase):
-    pass
+class PersonaUpdate(BaseModel):
+    apellido: Optional[str] = None
+    nombre: Optional[str] = None
+    dni: Optional[int] = None
+    telefono: Optional[str] = None
+    email: Optional[EmailStr] = None
+    contacto_emergencia: Optional[str] = None
+    password: Optional[str] = Field(default=None, min_length=4, max_length=128)
 
 
 class Persona(PersonaBase):
     id: int
-
-    # from_atributes=True permite que Pydantic trabaje con modelos SQLAlchemy
-    # más info.: https://docs.pydantic.dev/latest/api/config/#pydantic.config.ConfigDict.from_attributes
     model_config = {"from_attributes": True}

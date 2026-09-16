@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useInformesCurriculares } from "../hook/useInformesCurriculares";
 import { useEffect, useState } from "react";
 import type { InformeCurricular } from "../types/models/InformeCurricular";
+// import { IC_C1_START, IC_C1_END, IC_C2_START, IC_C2_END}from "../calendarioAcademico";
 
 export default function InformeDetallePage() {
   const { id } = useParams();
@@ -45,7 +46,7 @@ useEffect(() => {
       <h1>{informe.asignatura.nombre}</h1>
       <p><strong>Docente:</strong> {informe.docente}</p>
       <p><strong>Ciclo lectivo:</strong> {informe.ciclo_lectivo}</p>
-      <p><strong>Periodo:</strong> {informe.fecha_inicio} al {informe.fecha_fin}</p>
+      {/* <p><strong>Periodo:</strong> {informe.fecha_inicio} al {informe.fecha_fin}</p> */}
       <p><strong>Sede:</strong> {informe.sede}</p>
       <p><strong>Estado:</strong> {informe.estado}</p>
       <p><strong>Alumnos inscriptos:</strong> {informe.cant_alumnos_insc}</p>

@@ -1,4 +1,4 @@
-
+import type {Carrera} from "./models/Carrera";
 export interface OpcionRespuesta {
   id: number;
   texto_opcion: string;
@@ -36,22 +36,28 @@ export interface Asignatura {
   id: number;
   nombre: string;
   año: number; 
-  nombre_docente: string;
+  nombre_docente: string; // ✅ Correcto
   cursado: string;
-  carrera: string;
+  carrera: Carrera;
   sede: string;
 }
+
 export interface EncuestaAsignatura {
   id: number;
   id_encuesta_base: number;
   id_asignatura: number;
   fecha_inicio: string; 
   fecha_fin: string; 
+  ciclo_lectivo: number;    // ✅ Correcto
   estado: "abierta" | "cerrada"; 
   asignatura: Asignatura; 
+  
+  // --- ¡FALTABA ESTO! ---
+  // Es vital para que los filtros de Pendientes/Respondidas funcionen
+  respondida: boolean; 
 }
 
-
+// --- Tipos para enviar respuestas (Payloads) ---
 
 export interface DetalleRespuestaCreate {
   id_pregunta_opcion: number;

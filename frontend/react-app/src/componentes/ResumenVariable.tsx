@@ -20,12 +20,11 @@ export default function ResumenVariable({
 
   const elevationClass =
     elevation === "flat"
-      ? "flat-card border" // sin sombra, borde sutil
+      ? "flat-card border" 
       : elevation === "soft"
-      ? "shadow-sm border-0" // sombra leve
-      : "shadow border-0"; // sombra media (no lg)
+      ? "shadow-sm border-0" 
+      : "shadow border-0"; 
 
-  // Estado vacío
   if (
     !resumen ||
     !Array.isArray(resumen.opciones) ||

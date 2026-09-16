@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
-
-const API_URL = "http://localhost:8000";
+import { apiFetch } from "../api/client";
 
 // Este hook maneja el ESTADO de las respuestas (los textareas)
 // y la lógica de GUARDAR esas respuestas.
@@ -30,12 +29,11 @@ export function useResponderInformeSintetico() {
 
       const payload = {
         id_persona: idPersona,
-        // La diferencia clave está aquí:
         id_informe_sintetico_carrera: idInformeSinteticoCarrera,
         detalles,
       };
 
-      const res = await fetch(`${API_URL}/respuestas/`, {
+      const res = await apiFetch("/respuestas/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -51,7 +49,11 @@ export function useResponderInformeSintetico() {
       }
 
       if (!res.ok) {
-        throw new Error("No se pudieron guardar las respuestas del informe sintético");
+        const data = await res.json().catch(() => ({}));
+        throw new Error(
+          data.detail ||
+            "No se pudieron guardar las respuestas del informe sintético"
+        );
       }
 
       const data = await res.json();

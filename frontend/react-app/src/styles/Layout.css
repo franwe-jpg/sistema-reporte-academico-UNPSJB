@@ -1,37 +1,51 @@
 .layout {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; 
+  min-height: 100vh;
 }
 
-.layout .container {
-  flex: 1; 
+.content {
+  flex-grow: 1;
+  padding-bottom: 5rem;
 }
-
-.footer {
-  background-color: #222;
-  color: #ccc;
-  font-size: 0.9rem;
-  text-align: center;
-  padding: 1rem;
-  margin-top: auto; 
-}
-
-
-/* ... (tus otros estilos de .layout y .footer) ... */
 
 .home-icon {
-  /* ¡Un tamaño mucho más grande! */
-  font-size: 6rem; 
-  
-  /* Un margen inferior para separarlo del botón */
-  margin-bottom: 1.5rem; 
-
-  /* Transición suave para el efecto hover */
+  font-size: 6rem;
+  margin-bottom: 1.5rem;
   transition: transform 0.2s ease-in-out;
 }
 
 .home-icon:hover {
-  /* Al pasar el mouse, el ícono se agranda un 10% */
   transform: scale(1.1);
+}
+
+.logo-oval-container {
+  background-color: #ffffff;
+  border-radius: 999px;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d0d0d0;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.logo-img {
+  height: 52px; /* ajustá este valor si querés aún más finito */
+  width: auto;
+  object-fit: contain;
+}
+
+/* Texto INICIO debajo del logo */
+.logo-text {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.nav-link.active {
+  font-weight: 600;
+  border-bottom: 3px solid #2d9cdb;
+  padding-bottom: 4px;
+  color: #ffffff !important;
 }

@@ -10,12 +10,14 @@ interface Props {
   pregunta: ApiPregunta;
   control: Control<any>;
   errors: FieldErrors;
+  disabled?: boolean;
 }
 
 export default function Pregunta({
   pregunta,
   control,
   errors,
+  disabled = false
 }: Props) { 
 
   if (!pregunta || !pregunta.id) {
@@ -65,12 +67,13 @@ export default function Pregunta({
                       rows={3}
                       placeholder="Escriba su respuesta aquí"
                       isInvalid={!!error}
+                      disabled={disabled}
                     />
                   );
 
                 case 'single_choice':
                   return (
-                    <div className="d-flex flex-wrap gap-3">
+                    <div className="d-flex flex-column gap-3">
                       {opcionesDeChoice.map((opcion) => (
                         <Form.Check
                           {...field}
@@ -83,38 +86,9 @@ export default function Pregunta({
                           checked={field.value == opcion.id_opcion_respuesta!}
                           onChange={() => field.onChange(opcion.id_opcion_respuesta!)}
                           isInvalid={!!error}
+                          disabled={disabled}
                         />
                       ))}
-                    </div>
-                  );
-
-                case 'multiple_choice':
-                  return (
-                    <div className="d-flex flex-wrap gap-3">
-                      {opcionesDeChoice.map((opcion) => {
-                        const idOpcion = opcion.id_opcion_respuesta!;
-                        const currentValues = (field.value as number[]) || [];
-                        const isChecked = currentValues.includes(idOpcion);
-
-                        return (
-                          <Form.Check
-                            {...field}
-                            key={opcion.id}
-                            type="checkbox"
-                            id={`opcion-${opcion.id}`}
-                            label={opcion.opcion_respuesta!.texto_opcion}
-                            value={idOpcion}
-                            checked={isChecked}
-                            isInvalid={!!error}
-                            onChange={() => {
-                              const newValues = isChecked
-                                ? currentValues.filter(v => v !== idOpcion)
-                                : [...currentValues, idOpcion];
-                              field.onChange(newValues);
-                            }}
-                          />
-                        );
-                      })}
                     </div>
                   );
 

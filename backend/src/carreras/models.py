@@ -1,7 +1,6 @@
 from sqlalchemy import Integer, String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.models import ModeloBase
-from typing import List
 
 class Carrera(ModeloBase):
     __tablename__ = "carreras"

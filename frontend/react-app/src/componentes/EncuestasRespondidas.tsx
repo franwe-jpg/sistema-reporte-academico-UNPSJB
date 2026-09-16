@@ -1,55 +1,89 @@
-import { useEncuestas } from "../hook/useEncuestas";
-import Table from "react-bootstrap/Table";
+import { useEncuestas } from '../hook/useEncuestas';
 import { Link } from "react-router-dom";
+import { 
+  Container, 
+  Col, 
+  Row, 
+  Card, 
+  ListGroup, 
+  Badge, 
+  Spinner, 
+  Alert 
+} from "react-bootstrap";
 
 export default function EncuestasRespondidas() {
-  const { encuestas, loading, error } = useEncuestas();
+  // 1. Usamos 'encuestasRespondidas' en lugar de 'encuestas'
+  const { encuestasRespondidas, loading, error } = useEncuestas();
 
-  if (loading) return <p>Cargando encuestas...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading) {
+    return (
+      <Container className="my-4 text-center">
+        <Spinner animation="border" variant="primary" />
+        <p className="mt-2">Cargando historial...</p>
+      </Container>
+    );
+  }
 
-  const Respondidas = encuestas.filter(
-    (encuesta) => encuesta.estado === "cerrada"
-  );
+  if (error) {
+    return (
+      <Container className="my-4">
+        <Row>
+          <Col md={10} lg={8} className="mx-auto">
+            <Alert variant="danger">Error: {error}</Alert>
+          </Col>
+        </Row>
+      </Container>
+    );
+  }
+
+  const Respondidas = encuestasRespondidas;
 
   return (
-    <div className="container mt-4 p-4 border">
-      <h1 className="m-3">Encuestas Respondidas</h1>
-      <Table className="table table-striped border mt-5">
-        <thead>
-          <tr className="border">
-            <th>Asignatura</th>
-            <th>Año</th>
-            <th>Cursado</th>
-            <th>Fecha Fin</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Respondidas.length === 0 ? (
-            <tr>
-              <td colSpan={5}>No hay encuestas pendientes.</td>
-            </tr>
-          ) : (
-            Respondidas.map((encuesta) => (
-              <tr key={encuesta.id}>
-                <td>{encuesta.asignatura?.nombre}</td>
-                <td>{encuesta.asignatura?.año}</td>
-                <td>{encuesta.asignatura?.cursado}</td>
-                <td>{encuesta.fecha_fin}</td>
-                <td>
-                  <Link
-                    to={`/alumno/encuestas/${encuesta.id}`}
-                    className="btn btn-primary m-2"
+    <Container className="my-4">
+      <Row>
+        <Col md={10} lg={8} className="mx-auto">
+          
+          <Card className="border rounded shadow-sm bg-white">
+            
+            <Card.Header as="h5" className="bg-primary text-white">
+              Encuestas Respondidas
+            </Card.Header>
+            
+            <ListGroup variant="flush">
+              {Respondidas.length === 0 ? (
+                <ListGroup.Item>
+                  <p className="text-muted mb-0">No has respondido ninguna encuesta aún.</p>
+                </ListGroup.Item>
+              ) : (
+                Respondidas.map((encuesta) => (
+                  <ListGroup.Item 
+                    key={encuesta.id}
+                    className="d-flex align-items-start"
                   >
-                    Ir a encuesta
-                  </Link>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </Table>
-    </div>
+                    <div className="me-3 flex-grow-1 text-start">
+                      <span className="fw-bold">{encuesta.asignatura?.nombre}</span>
+                      <Badge bg="success" pill className="ms-2">Respondida</Badge>
+                      <br /> 
+                      <small className="text-muted">
+                        {`Año: ${encuesta.asignatura?.año} | Cursado: ${encuesta.asignatura?.cursado} | Finalizada: ${encuesta.fecha_fin}`}
+                      </small>
+                    </div>
+                    
+                    <Link
+                      to={`/alumno/encuestas-respondidas/${encuesta.id}`}
+                      className="btn btn-outline-primary btn-sm align-self-center"
+                      title="Ver encuesta respondida"
+                    >
+                      <i className="bi bi-eye-fill"></i>
+                      <span className="ms-2 d-none d-md-inline">Ver</span>
+                    </Link>
+                  </ListGroup.Item>
+                ))
+              )}
+            </ListGroup>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 }

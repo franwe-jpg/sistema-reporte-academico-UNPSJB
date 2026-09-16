@@ -5,8 +5,6 @@ from src.personas import schemas, services
 
 router = APIRouter(prefix="/personas", tags=["personas"])
 
-# Rutas para Personas
-
 @router.post("/", response_model=schemas.Persona)
 def create_persona(persona: schemas.PersonaCreate, db: Session = Depends(get_db)):
     return services.crear_persona(db, persona)

@@ -1,0 +1,20 @@
+.btn-custom-red {
+    background-color: white !important;
+    color: black !important;
+    border: 1px solid red !important; /* Borde fino rojo */
+    transition: all 0.3s ease; /* Suaviza la animación */
+}
+
+/* Estado Hover (cuando pasas el mouse) */
+.btn-custom-red:hover {
+    background-color: red !important;
+    color: white !important;
+}
+
+/* Estado Disabled (opcional, para que se vea bien cuando está generando) */
+.btn-custom-red:disabled {
+    opacity: 0.6;
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+    border-color: #ccc !important;
+}

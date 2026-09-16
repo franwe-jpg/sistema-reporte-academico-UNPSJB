@@ -6,7 +6,7 @@ export default function EstadisticasDocentePage() {
 
   useEffect(() => {
     const cargarResumen = async () => {
-      const resumen = await fetchResumenByReporteId(1); // acá ponés el id del reporte que quieras probar
+      const resumen = await fetchResumenByReporteId(1);
       console.log("Resumen del backend:", resumen);
     };
     cargarResumen();
@@ -15,7 +15,6 @@ export default function EstadisticasDocentePage() {
   return (
     <div>
       <h2>Dashboard de Estadísticas</h2>
-      {/* acá después vamos a renderizar los KPIs con esos datos */}
     </div>
   );
 }

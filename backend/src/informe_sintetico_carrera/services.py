@@ -58,6 +58,12 @@ def listar_informes_sinteticos_carrera(db: Session) -> List[InformeSinteticoCarr
     return db.scalars(query).unique().all()
 
 
+def listar_informes_respondidos_departamento(db: Session, persona_id: int) -> List[InformeSinteticoCarrera]:
+    query = _get_query_con_joins().join(Respuesta, InformeSinteticoCarrera.respuesta) \
+            .filter(Respuesta.id_persona == persona_id)
+            
+    return db.scalars(query).unique().all()
+
 def crear_informe_sintetico_carrera(db: Session, informe: schemas.InformeSinteticoCarreraCreate) -> InformeSinteticoCarrera:
     _informe = InformeSinteticoCarrera(**informe.model_dump(exclude={"informes_asignaturas"}))
     db.add(_informe)

@@ -1,10 +1,9 @@
 import { useCallback } from "react";
-
-const API_URL = "http://localhost:8000";
+import { apiFetch } from "../api/client";
 
 export function useInformeSinteticoBase() {
   const fetchInformeSinteticoBaseActual = useCallback(async () => {
-    const res = await fetch(`${API_URL}/informes-sinteticos-base/actual`);
+    const res = await apiFetch("/informes-sinteticos-base/actual");
     if (!res.ok) {
       throw new Error("No se pudo obtener el informe base actual");
     }

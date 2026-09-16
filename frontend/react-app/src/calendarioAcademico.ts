@@ -6,31 +6,29 @@
  * Julio = 6, Agosto = 7, Septiembre = 8, Octubre = 9, Noviembre = 10, Diciembre = 11
  */
 
-// --- 1. VENTANAS PARA RESPONDER ENCUESTAS (ALUMNOS) 
-//Período C1
-export const ENCUESTA_C1_START = new Date(2025, 5, 23); 
-export const ENCUESTA_C1_END = new Date(2025, 11, 12);   // lo formal es 2025-06-31
-// Período C2/Anual
-export const ENCUESTA_C2_START = new Date(2025, 10, 10);  
-export const ENCUESTA_C2_END = new Date(2025, 11, 12);  
+// --- 1. VENTANAS PARA RESPONDER ENCUESTAS (ALUMNOS)
+// Periodo C1
+export const ENCUESTA_C1_START = new Date(2026, 5, 23);   // 2026-06-23
+export const ENCUESTA_C1_END = new Date(2026, 11, 12);    // 2026-12-12
+// Periodo C2/Anual
+export const ENCUESTA_C2_START = new Date(2026, 10, 10);  // 2026-11-10
+export const ENCUESTA_C2_END = new Date(2026, 11, 12);    // 2026-12-12
 
 // --- 2. VENTANAS PARA GENERAR INFORMES CURRICULARES (DOCENTES) ---
-// Período C1 
-export const IC_C1_START = new Date(2025, 7, 1);
-export const IC_C1_END = new Date(2025, 11, 12); // solo seria un mes
-// Período C2/Anual 
-export const IC_C2_START = new Date(2025, 11, 13); 
-export const IC_C2_END = new Date(2026, 0, 12); 
+// Periodo C1
+export const IC_C1_START = new Date(2026, 7, 1);          // 2026-08-01
+export const IC_C1_END = new Date(2026, 11, 12);          // 2026-12-12
+// Periodo C2/Anual
+export const IC_C2_START = new Date(2026, 11, 13);        // 2026-12-13
+export const IC_C2_END = new Date(2027, 0, 12);           // 2027-01-12
 
-// --- 3. VENTANAS PARA GENERAR INFORMES SINTÉTICOS (DEPARTAMENTO) ---
-
-// Período C1
-export const IS_C1_START = new Date(2025, 8, 1); 
-export const IS_C1_END = new Date(2025, 11, 12);  //solo seria un mes
-// Período C2/Anual 
-export const IS_C2_START = new Date(2026, 0, 13);   
-export const IS_C2_END = new Date(2026, 1, 16);  
-
+// --- 3. VENTANAS PARA GENERAR INFORMES SINTETICOS (DEPARTAMENTO) ---
+// Periodo C1
+export const IS_C1_START = new Date(2026, 8, 1);          // 2026-09-01
+export const IS_C1_END = new Date(2026, 11, 12);          // 2026-12-12
+// Periodo C2/Anual
+export const IS_C2_START = new Date(2027, 0, 13);         // 2027-01-13
+export const IS_C2_END = new Date(2027, 1, 16);           // 2027-02-16
 
 const CUATRIMESTRE_1 = "cuatrimestre 1";
 const CUATRIMESTRE_2 = "cuatrimestre 2";
@@ -126,10 +124,5 @@ export function getRangoFechasInformeSintetico(cursado: string): string {
 
 // (Opcional) Puedes añadir también una función para hardcodear la fecha de prueba
 export function getToday(): Date {
-  return new Date(); //fecha actual
-  
-  // Opción B: Fecha Fija para Pruebas (descomenta la que necesites)
-  //return new Date(2024, 7, 15); // Simula Agosto 2026 (Permite IC C1)
-  // return new Date(2025, 11, 15); // Simula Diciembre 2025 (Permite IC C2 e IS C1)
-  // return new Date(2025, 4, 15); // Simula Mayo 2025 (No permite nada)
+  return new Date();
 }

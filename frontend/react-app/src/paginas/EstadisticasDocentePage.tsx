@@ -1,6 +1,7 @@
 import { Container, Row, Col, Card, ProgressBar, ListGroup, Dropdown, Spinner } from "react-bootstrap";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useEffect, useState, useMemo } from "react";
+import { useInscriptos } from "../hook/useInscriptos";
 import { useParams } from "react-router-dom";
 import { useReportes } from "../hook/useReportes";
 
@@ -122,7 +123,7 @@ export default function EstadisticasDocentePage() {
   const [rankingSource, setRankingSource] = useState<'general' | string>('general');
   const [comparisonYear, setComparisonYear] = useState<number>(new Date().getFullYear() - 1);
 
-  const inscriptos = 2;
+  const inscriptos = useInscriptos(reporteCompleto?.encuesta_asignatura?.asignatura?.id) ?? 0;
 
   // --- EFECTO DE CARGA INICIAL ---
   useEffect(() => {
@@ -309,11 +310,11 @@ const renderComparativaSection = () => {
                     <Card.Title className="m-0">Comparativa de Scores</Card.Title>
                     <Dropdown onSelect={(key) => setComparisonYear(Number(key))}>
                         <Dropdown.Toggle variant="primary" id="dropdown-year-scope">
-                            Comparando con: {comparisonYear === currentYear ? 'Actual (2025)' : `Año Anterior (${comparisonYear})`}
+                            Comparando con: {comparisonYear === currentYear ? `Actual (${currentYear})` : `Año Anterior (${comparisonYear})`}
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item eventKey={currentYear}>Actual ({currentYear})</Dropdown.Item>
-                            <Dropdown.Item eventKey="2024">Año Anterior (2024)</Dropdown.Item>
+                            <Dropdown.Item eventKey={currentYear - 1}>Año Anterior ({currentYear - 1})</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>

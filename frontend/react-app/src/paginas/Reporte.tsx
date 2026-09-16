@@ -9,6 +9,7 @@ import {
 } from "react-bootstrap";
 import { useReportes } from "../hook/useReportes";
 import { useEffect, useState, useMemo } from "react"; 
+import { useInscriptos } from "../hook/useInscriptos";
 import { useParams, Link } from "react-router-dom";
 import {EncabezadoReporte } from "../componentes/LayoutEncabezados";
 import ResumenVariable from "../componentes/ResumenVariable";
@@ -21,6 +22,7 @@ export default function ResumenReporte() {
     useReportes();
   const [reporte, setReporte] = useState<any>(null);
   const [reporteCompleto, setReporteCompleto] = useState<any>(null);
+  const inscriptos = useInscriptos(reporteCompleto?.encuesta_asignatura?.asignatura?.id);
   const [activeVariableKey, setActiveVariableKey] = useState<string | null>(
     null
   );
@@ -187,7 +189,7 @@ export default function ResumenReporte() {
                         Total inscriptos
                       </span>
                       <span className="text-dark fw-bold">
-                        25
+                        {inscriptos ?? "—"}
                       </span>
                     </div>
 

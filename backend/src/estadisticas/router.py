@@ -4,12 +4,13 @@ from src.database import get_db
 from src.estadisticas.services import EstadisticaService
 from src.estadisticas.schemas import DashboardDTO
 from typing import Optional
+from datetime import date
 
 router = APIRouter(prefix="/estadisticas", tags=["Estadísticas"])
 
 @router.get("/dashboard", response_model=DashboardDTO)
 def obtener_dashboard(
-    ciclo: int = 2025, 
+    ciclo: int = date.today().year,
     # Recibimos los parámetros de la URL
     cuatrimestre: Optional[str] = Query(None), 
     nivel: Optional[str] = Query(None),

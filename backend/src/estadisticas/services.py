@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session, joinedload, selectinload
-from sqlalchemy import extract
+from sqlalchemy import extract, func
 from collections import defaultdict, Counter
 from typing import List
 
@@ -15,6 +15,7 @@ except ImportError:
 from src.preguntas.models import Pregunta
 from src.variables.models import Variable
 from src.asignaturas.models import Asignatura
+from src.cursadas.models import Cursada
 from src.encuestas_base.models import EncuestaBase
 from src.estadisticas.schemas import DashboardDTO, Indicador, Dimension, Valoracion, TopAsignatura, Alerta
 
@@ -165,15 +166,34 @@ class EstadisticaService:
 
     def _calcular_top(self, encuestas: List[EncuestaAsignatura]) -> List[TopAsignatura]:
         conteo = defaultdict(int)
+        nombres = {}
         for enc in encuestas:
-            conteo[enc.asignatura.nombre] += len(enc.respuestas)
-            
+            conteo[enc.asignatura.id] += len(enc.respuestas)
+            nombres[enc.asignatura.id] = enc.asignatura.nombre
+
+        if not conteo:
+            return []
+
+        # Inscriptos reales por asignatura, tomados de las cursadas registradas.
+        filas = (
+            self.db.query(Cursada.id_asignatura, func.count(Cursada.id))
+            .filter(Cursada.id_asignatura.in_(list(conteo.keys())))
+            .group_by(Cursada.id_asignatura)
+            .all()
+        )
+        inscriptos = {id_asignatura: total for id_asignatura, total in filas}
+
         # Ordenar y tomar top 4
         top = sorted(conteo.items(), key=lambda x: x[1], reverse=True)[:4]
         res = []
-        for nom, cant in top:
-            avance = int((cant/50)*100)
-            res.append(TopAsignatura(nombre=nom, alumnos=50, avance=min(100, avance)))
+        for id_asignatura, cant in top:
+            total_inscriptos = inscriptos.get(id_asignatura, 0)
+            avance = int((cant / total_inscriptos) * 100) if total_inscriptos else 0
+            res.append(TopAsignatura(
+                nombre=nombres[id_asignatura],
+                alumnos=total_inscriptos,
+                avance=min(100, avance),
+            ))
         return res
 
     def _generar_alertas(self, encuestas: List[EncuestaAsignatura]) -> List[Alerta]:

@@ -50,7 +50,7 @@ sirviendo y **no hace falta reiniciarlo**. Refrescá el navegador y listo.
 
 Si querés empezar la jornada de cero: `./demo.sh --reset`.
 
-> **Para resetear entre tandas usá siempre `reset_demo.py`, nunca `seed_demo.py`.**
+> **Para resetear entre tandas usá siempre `./reset.sh`, nunca `seed_demo.py`.**
 > El seed rehace el esquema (DDL), y el backend mantiene un pool de conexiones
 > SQLite que sobrevive a eso: algunas seguirían devolviendo filas viejas, y el
 > sistema empieza a mostrarse inconsistente (un informe recién enviado que no
@@ -66,16 +66,43 @@ backend/venv/bin/python backend/scripts/verificar_demo.py
 
 ## 4. Usuarios
 
-**El usuario es el DNI**, no el email.
+**El usuario es el DNI** (no el email) y **todas las contraseñas son `1234`**.
 
-| Rol | DNI | Contraseña | Persona |
+| Rol | DNI | Persona | |
 |---|---|---|---|
-| Alumno | `45123456` | `alumno123` | Sofía Ailén Núñez |
-| Docente | `24876543` | `docente123` | Ana Beatriz Ferreyra |
-| Departamento | `20345678` | `depto123` | Marcela Inés Quiroga |
-| Admin | `35111222` | `admin123` | Franco Soler |
+| Alumno | `44601165` | Franco Soler | ← para la demo |
+| Alumno | `44850306` | Nicolás Arenas | |
+| Docente | `1001` | Leonardo Ordinez | ← para la demo |
+| Departamento | `2001` | Claudia López | ← para la demo |
+| Admin | `1111` | Admin Sistema | |
 
-El resto de los alumnos y docentes sembrados usan `alumno123` / `docente123`.
+Los demás docentes, por si querés mostrar otra cátedra:
+
+| DNI | Docente | Materia |
+|---|---|---|
+| `1002` | Lucy Marticorena | Programación Orientada a Objetos |
+| `1003` | Lautaro Pecile | Paradigmas y Lenguajes de Programación |
+| `1004` | Cristian Parise | Bases de Datos II |
+| `1005` | Sebastián Schanz | Ingeniería de Software I |
+| `1006` | Guillermo Zamora | Aspectos Legales y Profesionales |
+| `1007` | Bruno Zapellini | Administración de Redes y Seguridad |
+| `1008` | Diego Firmenitch | Fundamentos Teóricos de Informática |
+| `1009` | Carlos | Álgebra |
+
+### Crear un usuario en el momento
+
+En la pantalla de login, **"Solicitar alta de nuevo usuario"** abre un formulario
+que pide solo nombre, apellido, DNI y contraseña. Sirve para dar de alta al chico
+al que le estás enseñando y que vea su propio nombre en el sistema.
+
+El alta:
+
+- crea la persona con **perfil de alumno**,
+- **lo inscribe automáticamente** en las materias que tienen encuesta abierta, así
+  entra y ya tiene las 3 encuestas pendientes,
+- e **inicia sesión sola**, sin volver a pedir credenciales.
+
+El usuario creado así desaparece con el próximo `./reset.sh`.
 
 ---
 
@@ -86,9 +113,12 @@ Ese es el punto que conviene que se lleven.
 
 ### Alumno — responder una encuesta *(~3 min)*
 
-1. Entrar con `45123456` / `alumno123`.
-2. **Encuestas pendientes**: tiene 3 materias esperando respuesta.
-3. Abrir **Desarrollo de Software**. Recorrer las solapas por variable
+1. Entrar con `44601165` / `1234` (Franco Soler), o crear al chico en el momento
+   con **"Solicitar alta de nuevo usuario"**.
+2. **Encuestas pendientes**: tiene 3 materias esperando respuesta
+   (Desarrollo de Software, Programación Orientada a Objetos y
+   Administración de Redes y Seguridad).
+3. Abrir una. Recorrer las solapas por variable
    (B a F: teóricas, prácticas, evaluaciones, docente, infraestructura).
 4. Contestar y enviar.
 5. Ir a **Encuestas respondidas**: aparece ahí, en modo lectura.
@@ -97,54 +127,70 @@ Ese es el punto que conviene que se lleven.
 
 ### Docente — leer el reporte y hacer el informe *(~5 min)*
 
-1. Salir y entrar con `24876543` / `docente123`.
+1. Salir y entrar con `1001` / `1234` (Leonardo Ordinez).
 2. **Listado de reportes disponibles**: tiene 3 materias.
    → *"El reporte no lo armó nadie: lo genera el sistema cuando cierra la
    encuesta."*
 3. En **Desarrollo de Software** → **Ver Reporte**: porcentajes por pregunta,
-   20 inscriptos, 15 encuestas procesadas.
-4. **Ver Estadísticas**: participación 75%, satisfacción 81%, promedio por
-   variable y la torta.
-5. Bajar hasta **Comparativa de Scores** → comparar contra **2025**: mejoras de
-   +17 a +31 puntos en todas las variables.
+   inscriptos y encuestas procesadas.
+4. **Ver Estadísticas**: participación, satisfacción, promedio por variable y
+   la torta.
+5. Bajar hasta **Comparativa de Scores** → comparar contra **2025**: la materia
+   mejoró en todas las variables.
    → *"Esto es la regla RN-16: el docente puede medir su evolución."*
-6. Volver al listado → **Nuevo Informe** (solo está habilitado en su materia;
-   las otras dos ya tienen informe hecho).
+6. Volver al listado → **Nuevo Informe** (solo está habilitado en Desarrollo de
+   Software; las otras dos ya tienen informe hecho).
 7. Completar inscriptos / comisiones y los campos de texto. Enviar.
    → *"Desde que lo envía, queda cerrado. No se modifica ni se borra."*
 
 ### Departamento — consolidar la carrera *(~4 min)*
 
-1. Salir y entrar con `20345678` / `depto123`.
-2. **Informes sintéticos**: Licenciatura en Sistemas ahora muestra **5**
-   informes (los 4 que ya estaban más el que acaba de hacer Ana).
-3. **Generar** → se cargan los informes de la carrera como insumo. Completar
+1. Salir y entrar con `2001` / `1234` (Claudia López).
+2. **Informes sintéticos**: hay dos filas de Licenciatura en Sistemas, una por
+   cuatrimestre. La del **2.º cuatrimestre** ahora muestra **6** informes
+   (los 5 que ya estaban más el que acaba de hacer Leo) y tiene **Generar**;
+   la del 1.º ya está presentada y muestra **Ver informe**.
+3. **Generar** → se cargan los informes del período como insumo. Completar
    comisión asesora, integrantes y conclusiones. Enviar.
-4. **Estadísticas**: 9 asignaturas, 6 docentes, 74 respuestas, 71% de
-   satisfacción global, participación por variable y alertas.
-5. En **Alertas y Observaciones**, al final de la lista:
-   **Participación · Análisis Matemático I · Sin respuestas**.
+4. **Estadísticas**: asignaturas evaluadas, docentes, respuestas, satisfacción
+   global, participación por variable y alertas.
+5. Filtrar por **Ciclo Básico** → aparece la alerta
+   **Participación · Álgebra · Sin respuestas**.
    → *"El sistema detecta solo las materias donde nadie contestó."*
-   Si querés aislarla, filtrá por **Ciclo Básico**: quedan 5 alertas y esa
-   sobresale.
 
 ---
 
 ## 6. Qué hay en la base
 
-- **2 carreras** (Lic. en Sistemas, APU) y **6 asignaturas**, todas de
-  1.º cuatrimestre, sede Trelew.
-- **32 personas**: 24 alumnos, 6 docentes, 1 departamento, 1 admin.
-- **10 encuestas de asignatura**:
-  - las de **2025**, cerradas, que alimentan la comparativa interanual;
-  - las de **2026 ya cerradas**, que generaron los 6 reportes;
-  - **3 abiertas** hasta el 12/12/2026, que son las pendientes del alumno.
-- **5 informes curriculares cerrados**. El de *Desarrollo de Software* queda
+Todo sobre la carrera real: **Licenciatura en Sistemas**, sede Trelew, con
+**10 materias del plan 2010** y sus docentes reales.
+
+| Materia | Año | Cursado | Docente |
+|---|---|---|---|
+| Álgebra | 1.º | 1.er cuat. | Carlos |
+| Ingeniería de Software I | 3.º | 1.er cuat. | Sebastián Schanz |
+| Bases de Datos II | 4.º | 1.er cuat. | Cristian Parise |
+| Paradigmas y Lenguajes de Programación | 4.º | 1.er cuat. | Lautaro Pecile |
+| Análisis Matemático | 1.º | 2.º cuat. | Claudia López |
+| Programación Orientada a Objetos | 2.º | 2.º cuat. | Lucy Marticorena |
+| **Desarrollo de Software** | 3.º | 2.º cuat. | **Leonardo Ordinez** |
+| Fundamentos Teóricos de Informática | 3.º | 2.º cuat. | Diego Firmenitch |
+| Aspectos Legales y Profesionales | 4.º | 2.º cuat. | Guillermo Zamora |
+| Administración de Redes y Seguridad | 4.º | 2.º cuat. | Bruno Zapellini |
+
+Y además:
+
+- **35 personas**: 24 alumnos, 9 docentes, 1 departamento, 1 admin.
+- **14 encuestas de asignatura**:
+  - las **cerradas de 2026**, que generaron los 10 reportes;
+  - una de **2025** sobre Desarrollo de Software, que alimenta la comparativa;
+  - **3 abiertas** hasta el 12/12/2026 → las pendientes del alumno.
+- **9 informes curriculares cerrados**. El de *Desarrollo de Software* queda
   abierto a propósito: es el paso en vivo del docente.
-- **1 informe sintético** ya presentado (APU). El de Lic. en Sistemas queda
+- **1 informe sintético** presentado (1.er cuatrimestre). El del 2.º queda
   pendiente: es el paso en vivo del departamento.
-- **Análisis Matemático I** no tiene ninguna respuesta, para que dispare la
-  alerta de participación.
+- **Álgebra** no tiene ninguna respuesta, para que dispare la alerta de
+  participación.
 
 Los datos son deterministas (semilla fija): después de cada reset, los números
 son exactamente los mismos.
@@ -167,10 +213,18 @@ son exactamente los mismos.
   (está hardcodeado en `InformeCurricular.tsx`). El seed es determinista y deja
   esa pregunta justo en el id 35, así que funciona; pero si cambiás la cantidad
   de preguntas de las encuestas, las tarjetas desaparecen.
+- **Claudia López** figura como docente de Análisis Matemático pero en el sistema
+  tiene **solo el rol de departamento**, para que al entrar caiga directo en su
+  panel. Si querés que además vea el panel docente, avisá y le sumo ese rol
+  (entraría primero a /docente y tendría que ir a Inicio para cambiar).
+- Del docente de **Álgebra** solo tenemos el nombre de pila: figura como
+  "Carlos" y su usuario quedó con apellido `N.N.`. Pasame el apellido y lo
+  corrijo.
 - Las fechas del calendario académico están fijas en el código
   (`frontend/react-app/src/calendarioAcademico.ts`). Hoy están puestas para
-  2026; después del **12/12/2026** los botones de "Nuevo Informe" y "Generar"
-  se deshabilitan y hay que correr las ventanas.
+  2026 y las seis ventanas (encuesta / informe curricular / sintético, por
+  cuatrimestre) están abiertas hoy. Después del **12/12/2026** empiezan a
+  cerrarse y hay que correrlas.
 
 ---
 
@@ -189,6 +243,9 @@ Rama `feat/mejoras-expo-2026`, sobre `main` con `dev` ya mergeado.
 | `backend/src/estadisticas/services.py` | `_calcular_top` usa cursadas reales | Mostraba "Inscriptos (Est.): 50" para toda materia |
 | `backend/src/estadisticas/router.py` | Ciclo por defecto = año actual | Estaba fijo en 2025 |
 | `frontend` (varios) | Se quitaron 8 variables/imports sin usar | `npm run build` fallaba por `TS6133` |
+| `backend/src/auth/` | Nuevo `POST /auth/registro` | Alta de alumno desde el login, para crear al visitante en el momento |
+| `frontend/.../LoginPage.tsx` | "Solicitar alta de nuevo usuario" ahora abre un formulario real | El link existía con `href="#"` y no hacía nada |
+| `frontend/.../LoginPage.tsx` | Se lee `permData.nombre` además de `nombres` | El menú mostraba solo el apellido |
 | `backend/scripts/` | Nuevos: `seed_demo.py`, `reset_demo.py`, `verificar_demo.py` | No existía ningún seed en el repo |
 | `demo.sh`, `DEMO.md`, `.claude/launch.json` | Nuevos | Arranque y guion |
 

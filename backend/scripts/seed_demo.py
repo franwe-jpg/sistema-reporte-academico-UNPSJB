@@ -1,23 +1,22 @@
 """
 Demo database seeder — Universidad Abierta 2026.
 
-Builds a deterministic, self-consistent demo dataset from scratch and stores a
-pristine snapshot next to it so the database can be reset between visitor groups
-in under a second (see scripts/reset_demo.sh).
+Builds a deterministic demo dataset over the real Licenciatura en Sistemas
+(Plan 2010) curriculum and stores a pristine snapshot next to it, so the
+database can be reset between visitor groups in under a second
+(see scripts/reset_demo.py, or ./reset.sh at the repo root).
 
-Run from anywhere:
+Run with the backend STOPPED:
 
     backend/venv/bin/python backend/scripts/seed_demo.py
 
 What it guarantees for the live demo:
 
-  * One login per role (alumno / docente / departamento / admin).
+  * One login per role, every password "1234".
   * The alumno has open surveys to answer right now (real system date).
   * The docente has a report with real answers behind it, plus a previous-year
     survey so the year-over-year comparison returns data.
-  * The departamento has closed curricular reports to consolidate into a
-    synthetic report.
-  * The statistics dashboards have enough spread to show alerts and rankings.
+  * The departamento has closed curricular reports to consolidate.
 
 The three roles form a chain: what the alumno answers feeds the docente's
 report, and what the docente submits feeds the departamento's consolidation.
@@ -42,7 +41,7 @@ from dotenv import load_dotenv
 load_dotenv(BACKEND_DIR / ".env")
 
 if not os.getenv("DB_URL"):
-    sys.exit("DB_URL is not set. Create backend/.env first (see scripts/README.md).")
+    sys.exit("DB_URL is not set. Create backend/.env first (see DEMO.md).")
 
 from sqlalchemy import text  # noqa: E402
 
@@ -79,6 +78,8 @@ random.seed(SEED)
 DB_PATH = BACKEND_DIR / "demo.db"
 SNAPSHOT_PATH = BACKEND_DIR / "demo_snapshot.db"
 
+PASSWORD = "1234"
+
 # --- Academic calendar of the demo -------------------------------------------
 # Kept in sync with frontend/react-app/src/calendarioAcademico.ts.
 # The backend gates the alumno flow on the REAL system date, so the open survey
@@ -86,16 +87,76 @@ SNAPSHOT_PATH = BACKEND_DIR / "demo_snapshot.db"
 CICLO_ACTUAL = 2026
 CICLO_ANTERIOR = 2025
 
-ENCUESTA_ANTERIOR = (date(2025, 3, 16), date(2025, 7, 10))   # closed, previous year
-ENCUESTA_CERRADA = (date(2026, 3, 16), date(2026, 7, 10))    # closed, feeds the reports
-ENCUESTA_ABIERTA = (date(2026, 8, 3), date(2026, 12, 12))    # open, spans today
+ENC_C1_CERRADA = (date(2026, 6, 23), date(2026, 7, 10))   # 1.er cuatrimestre, ya cerrada
+ENC_C2_CERRADA = (date(2026, 8, 3), date(2026, 9, 10))    # 2.º cuatrimestre, recien cerrada
+ENC_ABIERTA = (date(2026, 9, 14), date(2026, 12, 12))     # abierta hoy
+ENC_ANTERIOR = (date(2025, 8, 4), date(2025, 9, 11))      # ciclo anterior, para la comparativa
 
-PASSWORDS = {
-    "alumno": "alumno123",
-    "docente": "docente123",
-    "departamento": "depto123",
-    "admin": "admin123",
-}
+# --- Carrera real -------------------------------------------------------------
+CARRERA = "Licenciatura en Sistemas"
+SEDE = "Trelew"
+
+# --- Plan de estudios ---------------------------------------------------------
+# Materias y periodos tomados del plan real (Plan 2010, Lic. en Sistemas,
+# orientacion Planificacion, Gestion y Control de Proyectos Informaticos).
+# "calidad" gobierna como se sortean las respuestas de los alumnos.
+# Asignatura.nombre_docente es UNIQUE en la base, por eso hay exactamente un
+# docente por materia.
+ASIGNATURAS = [
+    # (nombre, año, cursado, nombre_docente, calidad)
+    ("Álgebra", 1, Cursado.cuatrimestre1, "Carlos", "cero"),
+    ("Ingeniería de Software I", 3, Cursado.cuatrimestre1, "Sebastián Schanz", "alta"),
+    ("Bases de Datos II", 4, Cursado.cuatrimestre1, "Cristian Parise", "alta"),
+    ("Paradigmas y Lenguajes de Programación", 4, Cursado.cuatrimestre1, "Lautaro Pecile", "media"),
+    ("Análisis Matemático", 1, Cursado.cuatrimestre2, "Claudia López", "media"),
+    ("Programación Orientada a Objetos", 2, Cursado.cuatrimestre2, "Lucy Marticorena", "alta"),
+    ("Desarrollo de Software", 3, Cursado.cuatrimestre2, "Leonardo Ordinez", "alta"),
+    ("Fundamentos Teóricos de Informática", 3, Cursado.cuatrimestre2, "Diego Firmenitch", "media"),
+    ("Aspectos Legales y Profesionales", 4, Cursado.cuatrimestre2, "Guillermo Zamora", "media"),
+    ("Administración de Redes y Seguridad", 4, Cursado.cuatrimestre2, "Bruno Zapellini", "baja"),
+]
+
+# Materia sobre la que el docente completa el informe EN VIVO: es la unica que
+# queda con reporte generado y sin informe.
+MATERIA_EN_VIVO = "Desarrollo de Software"
+
+# Materias con encuesta abierta hoy, para que el alumno tenga que responder.
+MATERIAS_CON_ENCUESTA_ABIERTA = [
+    "Desarrollo de Software",
+    "Programación Orientada a Objetos",
+    "Administración de Redes y Seguridad",
+]
+
+# --- Usuarios reales ----------------------------------------------------------
+# (dni, nombre, apellido, rol). DNIs cortos e inventados para los docentes,
+# DNIs reales para los alumnos que van a usar el sistema.
+DOCENTES = [
+    (1001, "Leonardo", "Ordinez", "Desarrollo de Software"),
+    (1002, "Lucy", "Marticorena", "Programación Orientada a Objetos"),
+    (1003, "Lautaro", "Pecile", "Paradigmas y Lenguajes de Programación"),
+    (1004, "Cristian", "Parise", "Bases de Datos II"),
+    (1005, "Sebastián", "Schanz", "Ingeniería de Software I"),
+    (1006, "Guillermo", "Zamora", "Aspectos Legales y Profesionales"),
+    (1007, "Bruno", "Zapellini", "Administración de Redes y Seguridad"),
+    (1008, "Diego", "Firmenitch", "Fundamentos Teóricos de Informática"),
+    # Álgebra queda sin usuario: solo nos pasaron el nombre de pila del docente.
+    (1009, "Carlos", "N.N.", "Álgebra"),
+]
+
+# Claudia López es la responsable del Departamento. Queda con ese rol (y no con
+# el de docente) para que al entrar caiga directamente en su panel.
+DEPARTAMENTO = (2001, "Claudia", "López")
+
+ADMIN = (1111, "Admin", "Sistema")
+
+# Alumnos que se usan para entrar.
+ALUMNOS_REALES = [
+    (44601165, "Franco", "Soler"),
+    (44850306, "Nicolás", "Arenas"),
+]
+
+DOCENTE_EN_VIVO_DNI = 1001   # Leonardo Ordinez
+ALUMNO_EN_VIVO_DNI = 44601165  # Franco Soler
 
 # --- Answer scales ------------------------------------------------------------
 # These exact strings matter. EstadisticasDocentePage.tsx scores options through
@@ -109,7 +170,6 @@ ESCALA_PORCENTAJE = ["Más de 50%", "Entre 0 y 50%"]
 
 ESCALAS = [ESCALA_1_4, ESCALA_SI_NO, ESCALA_SUFICIENCIA, ESCALA_PORCENTAJE]
 
-# Sampling weights per quality tier, aligned to each scale's option order.
 PESOS = {
     "alta": {
         id(ESCALA_1_4): [0, 3, 31, 66],
@@ -247,7 +307,7 @@ def crear_variables_y_preguntas(db, encuesta_base: EncuestaBase, opciones: dict)
         db.flush()
 
 
-def crear_plantilla_abierta(db, owner, preguntas: list[tuple[str, bool]], campo: str) -> None:
+def crear_plantilla_abierta(db, owner, preguntas, campo: str) -> None:
     """Attach a list of open questions to a curricular or synthetic template."""
     for texto, obligatoria in preguntas:
         pregunta = Pregunta(
@@ -266,7 +326,7 @@ def crear_plantilla_abierta(db, owner, preguntas: list[tuple[str, bool]], campo:
 # Answer builders
 # =============================================================================
 
-def escala_de(pregunta: Pregunta, po_por_pregunta: dict) -> list | None:
+def escala_de(pregunta: Pregunta, po_por_pregunta: dict):
     """Recover which scale a question uses from its option connectors."""
     conectores = po_por_pregunta[pregunta.id]
     textos = [c.opcion_respuesta.texto_opcion for c in conectores if c.opcion_respuesta]
@@ -351,16 +411,13 @@ def main() -> None:
         print("El backend esta corriendo en el puerto 8000.")
         print()
         print("Para volver la base al punto inicial (no hace falta cortar nada):")
-        print("    backend/venv/bin/python backend/scripts/reset_demo.py")
+        print("    ./reset.sh")
         print()
         print("Para regenerar la base desde cero, detene el backend y volve a correr")
         print("este script. Si igual queres forzarlo, agrega --force y REINICIA el")
         print("backend despues, o va a servir datos viejos.")
         sys.exit(1)
 
-    # Drop and recreate the tables instead of deleting the file. Unlinking it
-    # would leave any running backend holding connections to the old inode,
-    # which then serves a mix of stale and fresh rows.
     if DB_PATH.exists():
         # respuestas <-> informes_asignaturas is a known FK cycle, so SQLAlchemy
         # cannot topologically sort the DROPs. SQLite does not enforce foreign
@@ -375,122 +432,107 @@ def main() -> None:
     db.execute(text("PRAGMA foreign_keys = ON"))
 
     try:
-        # --- Roles and permissions -------------------------------------------
         seguridad = SeguridadService(db)
         seguridad.seed()
         db.commit()
         log("Roles y permisos cargados")
 
-        # --- Careers ----------------------------------------------------------
-        lic = Carrera(nombre="Licenciatura en Sistemas", sede="Trelew")
-        apu = Carrera(nombre="Analista Programador Universitario", sede="Trelew")
-        db.add_all([lic, apu])
+        # --- Carrera y plan de estudios --------------------------------------
+        carrera = Carrera(nombre=CARRERA, sede=SEDE)
+        db.add(carrera)
         db.flush()
 
-        # --- Subjects ---------------------------------------------------------
-        # NOTE: Asignatura.nombre_docente is globally UNIQUE, so every subject
-        # needs a distinct teacher name string.
-        asignaturas_def = [
-            # (nombre, año, nombre_docente, carrera, calidad de las respuestas)
-            ("Desarrollo de Software", 4, "Ana Beatriz Ferreyra", lic, "alta"),
-            ("Base de Datos", 3, "Silvia Noemi Quinteros", lic, "alta"),
-            ("Algoritmos y Estructuras de Datos", 2, "Hugo Marcelo Petrucci", lic, "media"),
-            ("Paradigmas de Programacion", 3, "Ricardo Damian Olivera", lic, "baja"),
-            ("Analisis Matematico I", 1, "Raul Esteban Vidal", lic, "media"),
-            ("Programacion Orientada a Objetos", 2, "Mariela Andrea Sosa", apu, "media"),
-        ]
-
         asignaturas = {}
-        for nombre, anio, docente, carrera, calidad in asignaturas_def:
+        for nombre, anio, cursado, docente, calidad in ASIGNATURAS:
             a = Asignatura(
                 nombre=nombre,
                 año=anio,
                 nombre_docente=docente,
-                cursado=Cursado.cuatrimestre1,
-                sede="Trelew",
+                cursado=cursado,
+                sede=SEDE,
                 id_carrera=carrera.id,
             )
             db.add(a)
             db.flush()
             asignaturas[nombre] = (a, calidad)
-        log(f"{len(asignaturas)} asignaturas en 2 carreras")
+        db.commit()
+        log(f"{len(asignaturas)} materias del plan real de {CARRERA}")
 
-        # --- People -----------------------------------------------------------
-        def nueva_persona(nombre, apellido, dni, rol, password=None):
+        # --- Personas ---------------------------------------------------------
+        def nueva_persona(nombre, apellido, dni, rol):
             p = Persona(
                 nombre=nombre,
                 apellido=apellido,
                 dni=dni,
-                telefono=f"0280-15{dni % 1000000:06d}",
-                email=f"{nombre.split()[0].lower()}.{apellido.split()[0].lower()}{dni % 100}@unpsjb.edu.ar",
-                contacto_emergencia=f"0280-15{(dni + 7) % 1000000:06d}",
+                telefono=f"0280-15{dni % 1_000_000:06d}",
+                email=f"{nombre.split()[0].lower()}.{apellido.split()[0].lower()}{dni % 1000}@unpsjb.edu.ar",
+                contacto_emergencia=f"0280-15{(dni + 7) % 1_000_000:06d}",
             )
-            p.set_password(password or PASSWORDS[rol])
+            p.set_password(PASSWORD)
             db.add(p)
             db.flush()
             seguridad.assign_roles(p.id, [RoleName(rol)])
             db.flush()
             return p
 
-        alumno_demo = nueva_persona("Sofia Ailen", "Nunez", 45123456, "alumno")
-        docente_demo = nueva_persona("Ana Beatriz", "Ferreyra", 24876543, "docente")
-        depto_demo = nueva_persona("Marcela Ines", "Quiroga", 20345678, "departamento")
-        admin_demo = nueva_persona("Franco", "Soler", 35111222, "admin")
+        docentes = {}
+        for dni, nombre, apellido, materia in DOCENTES:
+            docentes[materia] = nueva_persona(nombre, apellido, dni, "docente")
 
-        # Other teachers, so the department view is not a one-subject demo.
-        otros_docentes = {}
-        for idx, (nombre, anio, docente, carrera, calidad) in enumerate(asignaturas_def[1:], start=1):
-            partes = docente.split()
-            p = nueva_persona(" ".join(partes[:-1]), partes[-1], 24000000 + idx * 13571, "docente")
-            otros_docentes[docente] = p
+        depto = nueva_persona(DEPARTAMENTO[1], DEPARTAMENTO[2], DEPARTAMENTO[0], "departamento")
+        nueva_persona(ADMIN[1], ADMIN[2], ADMIN[0], "admin")
 
-        # A cohort of students. They never log in during the demo, but they own
-        # the survey answers that make the reports meaningful.
-        alumnos = [alumno_demo]
-        nombres = ["Lucia", "Mateo", "Valentina", "Bruno", "Camila", "Thiago", "Julieta",
-                   "Benjamin", "Martina", "Joaquin", "Delfina", "Santino", "Renata",
+        alumnos = [nueva_persona(n, a, dni, "alumno") for dni, n, a in ALUMNOS_REALES]
+        alumno_demo = next(a for a in alumnos if a.dni == ALUMNO_EN_VIVO_DNI)
+
+        # Cohorte de companeros: no entran al sistema, pero son quienes dejaron
+        # las respuestas que hacen que los reportes tengan contenido.
+        nombres = ["Lucía", "Mateo", "Valentina", "Bruno", "Camila", "Thiago", "Julieta",
+                   "Benjamín", "Martina", "Joaquín", "Delfina", "Santino", "Renata",
                    "Ignacio", "Abril", "Lautaro", "Emilia", "Bautista", "Catalina",
-                   "Facundo", "Guadalupe", "Tomas", "Zoe"]
+                   "Facundo", "Guadalupe", "Tomás"]
         apellidos = ["Aguirre", "Barrientos", "Cabrera", "Duarte", "Escobar", "Figueroa",
-                     "Gimenez", "Herrera", "Ibarra", "Juarez", "Leiva", "Maldonado",
-                     "Navarro", "Ojeda", "Pereyra", "Quispe", "Rios", "Sandoval",
-                     "Torres", "Uriarte", "Vera", "Wagner", "Zalazar"]
+                     "Giménez", "Herrera", "Ibarra", "Juárez", "Leiva", "Maldonado",
+                     "Navarro", "Ojeda", "Pereyra", "Quispe", "Ríos", "Sandoval",
+                     "Torres", "Uriarte", "Vera", "Zalazar"]
         for idx, (n, ap) in enumerate(zip(nombres, apellidos)):
             alumnos.append(nueva_persona(n, ap, 46000000 + idx * 1237, "alumno"))
         db.commit()
-        log(f"{len(alumnos)} alumnos, {1 + len(otros_docentes)} docentes, 1 departamento, 1 admin")
+        log(f"{len(docentes)} docentes, 1 departamento, 1 admin, {len(alumnos)} alumnos")
 
-        # --- Enrolments -------------------------------------------------------
-        # Cursada is the join the app uses for BOTH sides: it decides which
-        # surveys a student sees AND which reports a teacher sees.
+        # --- Cursadas ---------------------------------------------------------
+        # Cursada es la tabla que usa la app para los DOS lados: decide que
+        # encuestas ve un alumno y que reportes ve un docente.
         inscriptos = {}
         for nombre, (asig, _) in asignaturas.items():
-            cohorte = random.sample(alumnos[1:], k=random.randint(14, 19))
-            if nombre in ("Desarrollo de Software", "Base de Datos",
-                          "Algoritmos y Estructuras de Datos"):
-                cohorte = [alumno_demo] + cohorte
+            cohorte = random.sample(alumnos[2:], k=random.randint(14, 19))
+            # Los dos alumnos que entran al sistema cursan las materias que
+            # tienen encuesta abierta.
+            if nombre in MATERIAS_CON_ENCUESTA_ABIERTA:
+                cohorte = alumnos[:2] + cohorte
             inscriptos[nombre] = cohorte
             for alumno in cohorte:
                 db.add(Cursada(id_persona=alumno.id, id_asignatura=asig.id,
                                ciclo_lectivo=CICLO_ACTUAL))
 
-        # The demo teacher is on the cátedra of three subjects (RN-04 allows
-        # team members, not only the titular), so her report list is not empty.
-        for nombre in ("Desarrollo de Software", "Base de Datos",
-                       "Algoritmos y Estructuras de Datos"):
-            db.add(Cursada(id_persona=docente_demo.id,
-                           id_asignatura=asignaturas[nombre][0].id,
+        # Cada docente cursa (integra la catedra de) su materia.
+        for materia, persona in docentes.items():
+            db.add(Cursada(id_persona=persona.id,
+                           id_asignatura=asignaturas[materia][0].id,
                            ciclo_lectivo=CICLO_ACTUAL))
 
-        for nombre, (asig, _) in asignaturas.items():
-            titular = asig.nombre_docente
-            if titular in otros_docentes:
-                db.add(Cursada(id_persona=otros_docentes[titular].id,
-                               id_asignatura=asig.id, ciclo_lectivo=CICLO_ACTUAL))
+        # El docente que expone integra ademas otras dos catedras, para que su
+        # listado de reportes no tenga una sola fila (RN-04 admite integrantes
+        # del equipo, no solo al titular).
+        docente_demo = docentes[MATERIA_EN_VIVO]
+        for materia in ("Ingeniería de Software I", "Fundamentos Teóricos de Informática"):
+            db.add(Cursada(id_persona=docente_demo.id,
+                           id_asignatura=asignaturas[materia][0].id,
+                           ciclo_lectivo=CICLO_ACTUAL))
         db.commit()
         log("Cursadas cargadas (alumnos y docentes)")
 
-        # --- Answer options ---------------------------------------------------
+        # --- Opciones de respuesta -------------------------------------------
         opciones = {}
         for texto in dict.fromkeys(ESCALA_1_4 + ESCALA_SI_NO + ESCALA_SUFICIENCIA + ESCALA_PORCENTAJE):
             o = OpcionRespuesta(texto_opcion=texto)
@@ -498,7 +540,7 @@ def main() -> None:
             db.flush()
             opciones[texto] = o
 
-        # --- Survey templates -------------------------------------------------
+        # --- Plantillas de encuesta ------------------------------------------
         base_basico = EncuestaBase(
             nombre="Encuesta de Evaluacion de Asignatura — Ciclo Basico",
             ciclo=Ciclo.ciclo_basico,
@@ -512,9 +554,9 @@ def main() -> None:
         crear_variables_y_preguntas(db, base_basico, opciones)
         crear_variables_y_preguntas(db, base_superior, opciones)
         db.commit()
-        log("2 encuestas base (ciclo basico y superior) con 5 variables y 16 preguntas cada una")
+        log("2 encuestas base (ciclo basico y superior), 5 variables y 16 preguntas cada una")
 
-        # --- Report templates -------------------------------------------------
+        # --- Plantillas de informe -------------------------------------------
         informe_base = InformeCurricularBase(
             titulo="Informe de Actividad Curricular — Res. CDFI N.º 283/2015",
         )
@@ -544,21 +586,20 @@ def main() -> None:
         db.commit()
         log("Plantillas de informe curricular y sintetico cargadas")
 
-        # --- Index the question tree once ------------------------------------
+        # --- Indice del arbol de preguntas -----------------------------------
         po_por_pregunta = {}
         for po in db.query(PreguntaOpcion).all():
             po_por_pregunta.setdefault(po.id_pregunta, []).append(po)
 
         preguntas_por_base = {}
         for base in (base_basico, base_superior):
-            preguntas = (
+            preguntas_por_base[base.id] = (
                 db.query(Pregunta)
                 .join(Variable, Pregunta.id_variable == Variable.id)
                 .filter(Variable.id_encuesta_base == base.id)
                 .order_by(Pregunta.id)
                 .all()
             )
-            preguntas_por_base[base.id] = preguntas
 
         preguntas_informe = (
             db.query(Pregunta)
@@ -574,49 +615,48 @@ def main() -> None:
         def base_para(asig: Asignatura) -> EncuestaBase:
             return base_basico if asig.año <= 2 else base_superior
 
-        # --- Surveys per subject ---------------------------------------------
+        # --- Encuestas por asignatura ----------------------------------------
         reportes = {}
         for nombre, (asig, calidad) in asignaturas.items():
             base = base_para(asig)
             preguntas = preguntas_por_base[base.id]
             cohorte = inscriptos[nombre]
+            es_c1 = asig.cursado == Cursado.cuatrimestre1
+            ventana = ENC_C1_CERRADA if es_c1 else ENC_C2_CERRADA
 
-            # 1) Previous year — only for the demo subject, to feed the
-            #    year-over-year comparison. Seeded one tier worse so the
-            #    comparison shows improvement.
-            if nombre == "Desarrollo de Software":
-                calidad_anterior = "media"
+            # 1) Ciclo anterior, solo para la materia que se expone en vivo:
+            #    alimenta la comparativa interanual. Se siembra un escalon peor
+            #    para que la comparacion muestre mejora.
+            if nombre == MATERIA_EN_VIVO:
                 enc_ant = EncuestaAsignatura(
                     id_encuesta_base=base.id,
                     id_asignatura=asig.id,
-                    fecha_inicio=ENCUESTA_ANTERIOR[0],
-                    fecha_fin=ENCUESTA_ANTERIOR[1],
+                    fecha_inicio=ENC_ANTERIOR[0],
+                    fecha_fin=ENC_ANTERIOR[1],
                     ciclo_lectivo=CICLO_ANTERIOR,
                     estado=EstadoEncuesta.cerrada,
                 )
                 db.add(enc_ant)
                 db.flush()
                 for alumno in random.sample(cohorte, k=min(11, len(cohorte))):
-                    responder_encuesta(db, enc_ant, alumno, preguntas,
-                                       po_por_pregunta, calidad_anterior)
+                    responder_encuesta(db, enc_ant, alumno, preguntas, po_por_pregunta, "media")
 
-            # 2) Current year, already closed — this is what the teacher
-            #    reports on. A closed survey plus its Reporte is the invariant
-            #    the app expects.
+            # 2) Encuesta del ciclo actual, ya cerrada: es la que genero el
+            #    reporte sobre el que trabaja el docente.
             enc_cerrada = EncuestaAsignatura(
                 id_encuesta_base=base.id,
                 id_asignatura=asig.id,
-                fecha_inicio=ENCUESTA_CERRADA[0],
-                fecha_fin=ENCUESTA_CERRADA[1],
+                fecha_inicio=ventana[0],
+                fecha_fin=ventana[1],
                 ciclo_lectivo=CICLO_ACTUAL,
                 estado=EstadoEncuesta.cerrada,
             )
             db.add(enc_cerrada)
             db.flush()
 
-            # "Analisis Matematico I" stays at zero responses on purpose: it is
-            # what triggers the low-participation alert on the dashboard.
-            if nombre != "Analisis Matematico I":
+            # calidad "cero": nadie respondio. Es lo que dispara la alerta de
+            # baja participacion en el tablero del departamento.
+            if calidad != "cero":
                 n = random.randint(max(8, len(cohorte) // 2), len(cohorte) - 2)
                 for alumno in random.sample(cohorte, k=n):
                     responder_encuesta(db, enc_cerrada, alumno, preguntas,
@@ -627,33 +667,29 @@ def main() -> None:
             db.flush()
             reportes[nombre] = reporte
 
-            # 3) Second semester, open right now — the alumno's pending work.
-            if nombre in ("Desarrollo de Software", "Base de Datos",
-                          "Algoritmos y Estructuras de Datos"):
+            # 3) Encuesta abierta hoy: el trabajo pendiente del alumno.
+            if nombre in MATERIAS_CON_ENCUESTA_ABIERTA:
                 enc_abierta = EncuestaAsignatura(
                     id_encuesta_base=base.id,
                     id_asignatura=asig.id,
-                    fecha_inicio=ENCUESTA_ABIERTA[0],
-                    fecha_fin=ENCUESTA_ABIERTA[1],
+                    fecha_inicio=ENC_ABIERTA[0],
+                    fecha_fin=ENC_ABIERTA[1],
                     ciclo_lectivo=CICLO_ACTUAL,
                     estado=EstadoEncuesta.abierta,
                 )
                 db.add(enc_abierta)
                 db.flush()
-                # Some classmates already answered; the demo student has not,
-                # so it stays in her pending list.
-                otros = [a for a in cohorte if a.id != alumno_demo.id]
+                # Algunos companeros ya respondieron; los alumnos que entran a
+                # la demo no, asi que les queda pendiente.
+                otros = [a for a in cohorte if a not in alumnos[:2]]
                 for alumno in random.sample(otros, k=min(3, len(otros))):
                     responder_encuesta(db, enc_abierta, alumno, preguntas,
-                                       po_por_pregunta, calidad)
+                                       po_por_pregunta, calidad if calidad != "cero" else "media")
 
             db.commit()
         log(f"{len(reportes)} reportes generados sobre encuestas cerradas")
 
-        # --- Pre-filled curricular reports -----------------------------------
-        # Every subject except the demo one already has a closed curricular
-        # report, so the departamento has material to consolidate. The demo
-        # teacher's own subject is left open on purpose: that is the live step.
+        # --- Informes curriculares ya presentados ----------------------------
         textos_informe = [
             "El dictado se desarrollo segun el cronograma previsto, con una carga practica sostenida "
             "a lo largo del cuatrimestre y un nivel de asistencia estable.",
@@ -670,14 +706,15 @@ def main() -> None:
 
         informes_creados = 0
         for nombre, (asig, _) in asignaturas.items():
-            if nombre == "Desarrollo de Software":
-                continue  # left for the live demo
-            titular = asig.nombre_docente
-            autor = otros_docentes.get(titular, docente_demo)
+            if nombre == MATERIA_EN_VIVO:
+                continue  # queda abierto: es el paso en vivo del docente
+            # Analisis Matematico lo dicta Claudia Lopez, que en el sistema
+            # figura con el rol de departamento, no con el de docente.
+            autor = docentes.get(nombre, depto)
             informe = InformeAsignatura(
                 sede=Sede.tw,
                 ciclo_lectivo=CICLO_ACTUAL,
-                docente=titular,
+                docente=asig.nombre_docente,
                 cant_alumnos_insc=len(inscriptos[nombre]),
                 cant_comisiones_teoricas=1,
                 cant_comisiones_practicas=random.randint(1, 3),
@@ -690,19 +727,21 @@ def main() -> None:
             db.flush()
             responder_plantilla(db, autor, preguntas_informe, po_por_pregunta,
                                 textos_informe, id_informe_asignatura=informe.id)
-            # Submitting an answer is what closes the report in the real flow.
+            # Enviar la respuesta es lo que cierra el informe en el flujo real.
             informe.estado = EstadoInforme.cerrado
             db.add(informe)
             informes_creados += 1
         db.commit()
-        log(f"{informes_creados} informes curriculares cerrados (queda 1 abierto para la demo)")
+        log(f"{informes_creados} informes curriculares cerrados "
+            f"(queda abierto el de {MATERIA_EN_VIVO})")
 
-        # --- One already-filed synthetic report -------------------------------
-        # For the APU career, so the departamento's "Mis Informes Enviados" is
-        # not empty. Licenciatura en Sistemas is left pending on purpose.
+        # --- Informe sintetico del 1.er cuatrimestre, ya presentado ----------
+        # El del 2.º cuatrimestre queda pendiente a proposito: es el paso en
+        # vivo del departamento, y ahi entra el informe que acaba de hacer el
+        # docente sobre la materia que se expone.
         textos_sintetico = [
-            "Durante el primer cuatrimestre se dictaron las actividades curriculares previstas, "
-            "con informes de catedra presentados en tiempo y forma.",
+            "Durante el periodo se dictaron las actividades curriculares previstas, con informes de "
+            "catedra presentados en tiempo y forma.",
             "Se destaca la valoracion positiva del vinculo docente-estudiante y la claridad de las "
             "consignas de trabajos practicos.",
             "Persisten dificultades vinculadas al equipamiento de laboratorio y a la conectividad, "
@@ -711,36 +750,35 @@ def main() -> None:
             "implementadas por la mayoria de las catedras.",
             "Se solicita considerar la actualizacion del equipamiento informatico para el proximo ciclo.",
         ]
-        sintetico_apu = InformeSinteticoCarrera(
+        sintetico_c1 = InformeSinteticoCarrera(
             ciclo_lectivo=str(CICLO_ACTUAL),
-            comision_asesora="Comision Asesora de Analista Programador Universitario",
-            sede="Trelew",
-            integrantes="Marcela Ines Quiroga, Mariela Andrea Sosa, Raul Esteban Vidal",
+            comision_asesora=f"Comision Asesora de {CARRERA}",
+            sede=SEDE,
+            integrantes="Claudia Lopez, Sebastian Schanz, Cristian Parise",
             estado=EstadoSintetico.abierto,
-            id_carrera=apu.id,
+            id_carrera=carrera.id,
             id_informe_sintetico_base=sintetico_base.id,
         )
-        db.add(sintetico_apu)
+        db.add(sintetico_c1)
         db.flush()
-        responder_plantilla(db, depto_demo, preguntas_sintetico, po_por_pregunta,
-                            textos_sintetico, id_informe_sintetico_carrera=sintetico_apu.id)
-        sintetico_apu.estado = EstadoSintetico.cerrado
+        responder_plantilla(db, depto, preguntas_sintetico, po_por_pregunta,
+                            textos_sintetico, id_informe_sintetico_carrera=sintetico_c1.id)
+        sintetico_c1.estado = EstadoSintetico.cerrado
 
-        # Link the APU curricular report to it, the way the real endpoint does.
-        informe_apu = (
-            db.query(InformeAsignatura)
-            .filter(InformeAsignatura.id_asignatura ==
-                    asignaturas["Programacion Orientada a Objetos"][0].id)
-            .first()
-        )
-        if informe_apu:
-            informe_apu.id_informe_sintetico_carrera = sintetico_apu.id
+        # Vincular los informes del 1.er cuatrimestre, como hace el endpoint real.
+        for nombre, (asig, _) in asignaturas.items():
+            if asig.cursado != Cursado.cuatrimestre1:
+                continue
+            inf = (db.query(InformeAsignatura)
+                     .filter(InformeAsignatura.id_asignatura == asig.id).first())
+            if inf:
+                inf.id_informe_sintetico_carrera = sintetico_c1.id
         db.commit()
-        log("1 informe sintetico ya presentado (APU); Lic. en Sistemas queda pendiente")
+        log("1 informe sintetico presentado (1.er cuatrimestre); el 2.º queda pendiente")
 
-        # --- Summary ----------------------------------------------------------
         conteos = {
             "personas": db.query(Persona).count(),
+            "asignaturas": db.query(Asignatura).count(),
             "cursadas": db.query(Cursada).count(),
             "encuestas": db.query(EncuestaAsignatura).count(),
             "respuestas": db.query(Respuesta).count(),
@@ -753,7 +791,6 @@ def main() -> None:
         db.close()
 
     engine.dispose()
-
     shutil.copy2(DB_PATH, SNAPSHOT_PATH)
 
     print("\n--- Resumen ---")
@@ -763,11 +800,14 @@ def main() -> None:
     print(f"\n  Base:     {DB_PATH}")
     print(f"  Snapshot: {SNAPSHOT_PATH}")
 
-    print("\n--- Usuarios de la demo (el usuario es el DNI) ---")
-    print(f"  Alumno        DNI 45123456  /  {PASSWORDS['alumno']}       Sofia Ailen Nunez")
-    print(f"  Docente       DNI 24876543  /  {PASSWORDS['docente']}      Ana Beatriz Ferreyra")
-    print(f"  Departamento  DNI 20345678  /  {PASSWORDS['departamento']}        Marcela Ines Quiroga")
-    print(f"  Admin         DNI 35111222  /  {PASSWORDS['admin']}       Franco Soler")
+    print(f"\n--- Usuarios (el usuario es el DNI, la contrasena es {PASSWORD}) ---")
+    print(f"  Alumno        {ALUMNOS_REALES[0][0]}   Franco Soler        <- para la demo")
+    print(f"  Alumno        {ALUMNOS_REALES[1][0]}   Nicolás Arenas")
+    print(f"  Docente       {DOCENTE_EN_VIVO_DNI}       Leonardo Ordinez    <- para la demo")
+    print(f"  Departamento  {DEPARTAMENTO[0]}       Claudia López       <- para la demo")
+    print(f"  Admin         {ADMIN[0]}       Admin Sistema")
+    print("  Otros docentes: 1002 Marticorena · 1003 Pecile · 1004 Parise · 1005 Schanz")
+    print("                  1006 Zamora · 1007 Zapellini · 1008 Firmenitch · 1009 Carlos")
     print("\nListo.\n")
 
 

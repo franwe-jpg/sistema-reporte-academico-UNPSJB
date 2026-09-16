@@ -14,10 +14,10 @@ import urllib.request
 
 BASE = "http://localhost:8000"
 USERS = {
-    "alumno": (45123456, "alumno123"),
-    "docente": (24876543, "docente123"),
-    "departamento": (20345678, "depto123"),
-    "admin": (35111222, "admin123"),
+    "alumno": (44601165, "1234"),        # Franco Soler
+    "docente": (1001, "1234"),           # Leonardo Ordinez
+    "departamento": (2001, "1234"),      # Claudia Lopez
+    "admin": (1111, "1234"),             # Admin Sistema
 }
 
 fallos = []
@@ -51,6 +51,13 @@ for rol, (dni, pwd) in USERS.items():
         tokens[rol] = data["access_token"]
     check(f"login {rol} (DNI {dni})", ok, f"HTTP {st}")
 
+import base64
+def persona_id(tok):
+    pay = tok.split(".")[1]
+    pay += "=" * (-len(pay) % 4)
+    return json.loads(base64.urlsafe_b64decode(pay))["persona_id"]
+PERSONA_ALUMNO = persona_id(tokens["alumno"])
+
 print("\n== ALUMNO ==")
 t = tokens.get("alumno")
 st, pend = call("/encuestas-asignaturas/pendientes", t)
@@ -69,7 +76,7 @@ if st == 200 and pend:
     )
     check("todas las preguntas tienen opciones", todas_con_opciones)
 
-st, resp = call("/encuestas-asignaturas/alumno/1", t)
+st, resp = call(f"/encuestas-asignaturas/alumno/{PERSONA_ALUMNO}", t)
 check("historial de encuestas respondidas", st == 200 and len(resp) > 0,
       f"{len(resp) if st == 200 else st} respondidas")
 
@@ -96,7 +103,11 @@ if st == 200 and full:
     check("reporte trae respuestas", len(ea["respuestas"]) > 0,
           f"{len(ea['respuestas'])} respuestas")
     check("asignatura trae carrera anidada", ea["asignatura"].get("carrera") is not None)
-    check("cursado es 'cuatrimestre 1'", ea["asignatura"]["cursado"] == "cuatrimestre 1",
+    # Un cursado con un valor inesperado deja el boton "Nuevo Informe"
+    # deshabilitado en silencio: calendarioAcademico.ts devuelve false para
+    # cualquier cadena que no sea exactamente una de estas tres.
+    check("cursado es un valor que el calendario reconoce",
+          ea["asignatura"]["cursado"] in ("cuatrimestre 1", "cuatrimestre 2", "anual"),
           ea["asignatura"]["cursado"])
 
 st, gen = call(f"/reportes/generar/{rid}", t)
@@ -144,12 +155,8 @@ check("informes sinteticos existentes", st == 200, f"{len(sint) if st == 200 els
 if st == 200:
     con_resp = [s for s in sint if s.get("respuesta")]
     check("al menos 1 sintetico ya presentado", len(con_resp) > 0, f"{len(con_resp)} con respuesta")
-    carreras_con_sint = {s["id_carrera"] for s in con_resp}
-    lic = [i for i in cerrados if i["asignatura"]["carrera"]["nombre"] == "Licenciatura en Sistemas"]
-    if lic:
-        id_lic = lic[0]["asignatura"]["carrera"]["id"]
-        check("Lic. en Sistemas SIN sintetico (queda para la demo en vivo)",
-              id_lic not in carreras_con_sint)
+    check("queda al menos un periodo sin sintetico (para la demo en vivo)",
+          len(con_resp) < 2, f"{len(con_resp)} periodo(s) ya presentado(s) de 2")
 
 st, sbase = call("/informes-sinteticos-base/actual", t)
 check("plantilla de informe sintetico disponible",

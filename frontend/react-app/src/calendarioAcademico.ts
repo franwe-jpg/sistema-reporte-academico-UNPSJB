@@ -11,23 +11,24 @@
 export const ENCUESTA_C1_START = new Date(2026, 5, 23);   // 2026-06-23
 export const ENCUESTA_C1_END = new Date(2026, 11, 12);    // 2026-12-12
 // Periodo C2/Anual
-export const ENCUESTA_C2_START = new Date(2026, 10, 10);  // 2026-11-10
+export const ENCUESTA_C2_START = new Date(2026, 7, 3);    // 2026-08-03
 export const ENCUESTA_C2_END = new Date(2026, 11, 12);    // 2026-12-12
 
 // --- 2. VENTANAS PARA GENERAR INFORMES CURRICULARES (DOCENTES) ---
+// Cada ventana abre cuando cierra la encuesta del periodo correspondiente.
 // Periodo C1
-export const IC_C1_START = new Date(2026, 7, 1);          // 2026-08-01
+export const IC_C1_START = new Date(2026, 6, 11);         // 2026-07-11
 export const IC_C1_END = new Date(2026, 11, 12);          // 2026-12-12
 // Periodo C2/Anual
-export const IC_C2_START = new Date(2026, 11, 13);        // 2026-12-13
+export const IC_C2_START = new Date(2026, 8, 11);         // 2026-09-11
 export const IC_C2_END = new Date(2027, 0, 12);           // 2027-01-12
 
 // --- 3. VENTANAS PARA GENERAR INFORMES SINTETICOS (DEPARTAMENTO) ---
 // Periodo C1
-export const IS_C1_START = new Date(2026, 8, 1);          // 2026-09-01
+export const IS_C1_START = new Date(2026, 7, 1);          // 2026-08-01
 export const IS_C1_END = new Date(2026, 11, 12);          // 2026-12-12
 // Periodo C2/Anual
-export const IS_C2_START = new Date(2027, 0, 13);         // 2027-01-13
+export const IS_C2_START = new Date(2026, 8, 14);         // 2026-09-14
 export const IS_C2_END = new Date(2027, 1, 16);           // 2027-02-16
 
 const CUATRIMESTRE_1 = "cuatrimestre 1";

@@ -106,7 +106,28 @@ El usuario creado así desaparece con el próximo `./reset.sh`.
 
 ---
 
-## 5. Guion de la demo
+## 5. Atajos para no perder tiempo en vivo
+
+**Botón "Completar de ejemplo"** — está en los tres formularios: la encuesta del
+alumno, el informe de actividad curricular del docente y el informe sintético del
+departamento. Carga todos los campos de una (en la encuesta marca las opciones
+más positivas) para que no tengas que completar dieciséis preguntas a mano
+delante de la gente. Después revisás y enviás.
+
+**Botón "Cerrar y generar reporte"** — en el panel del docente, arriba del
+listado, aparece la tarjeta **Encuestas en curso** con las encuestas abiertas de
+sus materias y cuántas respuestas llevan. Mientras una encuesta sigue abierta no
+existe su reporte, así que no hay nada que informar. Ese botón hace lo mismo que
+el proceso automático cuando vence la fecha: la cierra y consolida el reporte.
+
+Con esos dos, el circuito completo se puede recorrer en pocos minutos:
+
+> el chico se da de alta y responde → Leo cierra esa encuesta y genera el reporte
+> → hace el informe sobre **esa misma respuesta** → Claudia consolida la carrera.
+
+---
+
+## 6. Guion de la demo
 
 Los tres roles forman una cadena: **lo que hace cada uno habilita al siguiente**.
 Ese es el punto que conviene que se lleven.
@@ -160,7 +181,7 @@ Ese es el punto que conviene que se lleven.
 
 ---
 
-## 6. Qué hay en la base
+## 7. Qué hay en la base
 
 Todo sobre la carrera real: **Licenciatura en Sistemas**, sede Trelew, con
 **10 materias del plan 2010** y sus docentes reales.
@@ -197,7 +218,7 @@ son exactamente los mismos.
 
 ---
 
-## 7. Cosas a tener en cuenta
+## 8. Cosas a tener en cuenta
 
 - **No uses el link "Ver" de Departamento → Informes curriculares.** El endpoint
   `/respuestas/` filtra siempre por la persona del token, así que el
@@ -228,7 +249,7 @@ son exactamente los mismos.
 
 ---
 
-## 8. Qué se cambió para esta demo
+## 9. Qué se cambió para esta demo
 
 Rama `feat/mejoras-expo-2026`, sobre `main` con `dev` ya mergeado.
 
@@ -244,6 +265,9 @@ Rama `feat/mejoras-expo-2026`, sobre `main` con `dev` ya mergeado.
 | `backend/src/estadisticas/router.py` | Ciclo por defecto = año actual | Estaba fijo en 2025 |
 | `frontend` (varios) | Se quitaron 8 variables/imports sin usar | `npm run build` fallaba por `TS6133` |
 | `backend/src/auth/` | Nuevo `POST /auth/registro` | Alta de alumno desde el login, para crear al visitante en el momento |
+| `backend/src/reportes/` | Nuevos `GET /reportes/encuestas-abiertas` y `POST /reportes/desde-encuesta/{id}` | Sin esto el docente no puede ver la respuesta que acaba de dejar el visitante: el reporte solo existe cuando la encuesta cierra |
+| `frontend/.../EncuestasEnCurso.tsx` | Nuevo: encuestas abiertas + "Cerrar y generar reporte" | Expone la operación anterior en el panel del docente |
+| `frontend/.../BotonAutocompletar.tsx` y `datosDeEjemplo.ts` | Nuevos: botón "Completar de ejemplo" en los tres formularios | Completar 16 preguntas a mano en vivo no aporta nada |
 | `frontend/.../LoginPage.tsx` | "Solicitar alta de nuevo usuario" ahora abre un formulario real | El link existía con `href="#"` y no hacía nada |
 | `frontend/.../LoginPage.tsx` | Se lee `permData.nombre` además de `nombres` | El menú mostraba solo el apellido |
 | `backend/scripts/` | Nuevos: `seed_demo.py`, `reset_demo.py`, `verificar_demo.py` | No existía ningún seed en el repo |

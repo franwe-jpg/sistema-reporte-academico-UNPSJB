@@ -14,6 +14,7 @@ from src.variables.models import Variable
 from collections import defaultdict
 from src.reportes import schemas, exceptions
 from src.cursadas.models import Cursada
+from fastapi import HTTPException
 
 def listar_reportes(db: Session, persona_id: int) -> List[schemas.Reporte]:    
     # 1. Subquery: Asignaturas del docente
@@ -330,3 +331,77 @@ def generar_resumen_comparativo_real(db: Session, reporte_id: int, ciclo_lectivo
     return resumen_comparativo
 
 
+
+
+def listar_encuestas_abiertas(db: Session, persona_id: int) -> list[schemas.EncuestaAbiertaItem]:
+    """Encuestas todavia abiertas de las asignaturas que integra la persona.
+
+    Son las que aun no generaron reporte: el job automatico las cierra recien
+    cuando vence la fecha, asi que hasta entonces no hay nada que informar.
+    """
+    subquery_asignaturas = select(Cursada.id_asignatura).where(
+        Cursada.id_persona == persona_id
+    )
+
+    encuestas = db.scalars(
+        select(EncuestaAsignatura)
+        .where(
+            EncuestaAsignatura.id_asignatura.in_(subquery_asignaturas),
+            EncuestaAsignatura.estado == EstadoEncuesta.abierta,
+        )
+        .options(
+            selectinload(EncuestaAsignatura.asignatura),
+            selectinload(EncuestaAsignatura.respuestas),
+        )
+        .order_by(EncuestaAsignatura.fecha_fin)
+    ).all()
+
+    return [
+        schemas.EncuestaAbiertaItem(
+            id=e.id,
+            asignatura=e.asignatura.nombre,
+            ciclo_lectivo=e.ciclo_lectivo,
+            fecha_fin=e.fecha_fin,
+            respuestas=len(e.respuestas),
+        )
+        for e in encuestas
+    ]
+
+
+def cerrar_encuesta_y_generar_reporte(db: Session, id_encuesta: int, persona_id: int) -> Reporte:
+    """Cierra una encuesta en curso y consolida su reporte.
+
+    Es la misma operacion que hace el proceso automatico cuando vence la fecha
+    de cierre (RN-09), disponible a pedido para las asignaturas que integra la
+    persona.
+    """
+    encuesta = db.get(EncuestaAsignatura, id_encuesta)
+    if not encuesta:
+        raise HTTPException(status_code=404, detail="La encuesta no existe")
+
+    integra_catedra = db.scalar(
+        select(Cursada.id).where(
+            Cursada.id_persona == persona_id,
+            Cursada.id_asignatura == encuesta.id_asignatura,
+        ).limit(1)
+    )
+    if not integra_catedra:
+        raise HTTPException(
+            status_code=403,
+            detail="La encuesta no corresponde a una asignatura que integres",
+        )
+
+    if encuesta.estado != EstadoEncuesta.cerrada:
+        encuesta.estado = EstadoEncuesta.cerrada
+        db.add(encuesta)
+
+    reporte = db.scalar(
+        select(Reporte).where(Reporte.id_encuesta_asignatura == encuesta.id).limit(1)
+    )
+    if reporte is None:
+        reporte = Reporte(id_encuesta_asignatura=encuesta.id)
+        db.add(reporte)
+
+    db.commit()
+    db.refresh(reporte)
+    return reporte

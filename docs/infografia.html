@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>html{color-scheme:light dark}body{margin:0}@media print{body{background:#fff}.infografia{border:0;max-width:none}}</style>
+</head>
+<body>
+<title>Circuito de Retroalimentación Académica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ink:        #0d1b24;
+    --ink-soft:   #354b58;
+    --muted:      #647986;
+    --hairline:   #cbd6dd;
+    --ground:     #d7dfe4;
+    --sheet:      #f4f7f8;
+    --band:       #ffffff;
+    --accent:     #0a6b73;
+    --accent-ink: #ffffff;
+    --signal:     #b3660f;
+    --signal-mark:#d98b2b;
+
+    --display: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --body:    "Source Serif 4", Georgia, "Times New Roman", serif;
+    --mono:    "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink:        #e6eef2;
+      --ink-soft:   #aec0cb;
+      --muted:      #7e96a4;
+      --hairline:   #223b48;
+      --ground:     #050d12;
+      --sheet:      #0c1a22;
+      --band:       #12242e;
+      --accent:     #4fb3ba;
+      --accent-ink: #04161a;
+      --signal:     #f0ad52;
+      --signal-mark:#f0ad52;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink:        #e6eef2;
+    --ink-soft:   #aec0cb;
+    --muted:      #7e96a4;
+    --hairline:   #223b48;
+    --ground:     #050d12;
+    --sheet:      #0c1a22;
+    --band:       #12242e;
+    --accent:     #4fb3ba;
+    --accent-ink: #04161a;
+    --signal:     #f0ad52;
+    --signal-mark:#f0ad52;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0;
+    padding: clamp(0px, 3vw, 40px) 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- The sheet: one narrow column, very tall ---------- */
+  .infografia {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    background: var(--sheet);
+    border: 1px solid var(--hairline);
+    overflow: hidden;
+  }
+
+  .banda {
+    padding: clamp(1.75rem, 5vw, 2.75rem) clamp(1.25rem, 5vw, 2.5rem);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .banda:last-child { border-bottom: 0; }
+  .banda.alt { background: var(--band); }
+
+  /* ---------- Section heads ---------- */
+  .num {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.7rem;
+  }
+  .num::after { content: ""; flex: 1; height: 1px; background: var(--hairline); }
+
+  h1, h2, h3 { font-family: var(--display); margin: 0; line-height: 1.06; text-wrap: balance; font-weight: 600; }
+  h2 { font-size: clamp(1.5rem, 5.2vw, 2.05rem); letter-spacing: -0.022em; }
+  h3 { font-size: 1.02rem; letter-spacing: -0.005em; }
+
+  p { margin: 0; }
+  .bajada {
+    margin-top: 0.7rem;
+    font-size: 0.97rem;
+    color: var(--ink-soft);
+    max-width: 58ch;
+  }
+  .pie {
+    margin-top: 1.2rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+
+  /* ---------- Cover ---------- */
+  .portada {
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: clamp(2rem, 6vw, 3.25rem) clamp(1.25rem, 5vw, 2.5rem);
+    border-bottom: 0;
+  }
+  .portada .kicker {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .portada h1 {
+    font-size: clamp(1.9rem, 7vw, 2.9rem);
+    letter-spacing: -0.03em;
+    margin: 1rem 0 0;
+  }
+  .portada .sub {
+    margin-top: 0.9rem;
+    font-size: 1.02rem;
+    opacity: 0.92;
+    max-width: 46ch;
+  }
+  .portada-meta {
+    margin-top: 1.6rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid color-mix(in srgb, var(--accent-ink) 30%, transparent);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.6rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+
+  /* ---------- Problem rows ---------- */
+  .fila {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 0.9rem;
+    align-items: start;
+    padding: 0.95rem 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .fila:first-of-type { border-top: 0; }
+  .fila .quien {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding-top: 0.2rem;
+  }
+  .fila p { font-size: 0.95rem; color: var(--ink-soft); }
+  @media (max-width: 460px) {
+    .fila { grid-template-columns: 1fr; gap: 0.3rem; }
+  }
+
+  /* ---------- The circuit: a vertical chain down the page ---------- */
+  .cadena { margin-top: 1.5rem; position: relative; }
+  .etapa {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 1rem;
+    position: relative;
+    padding-bottom: 1.6rem;
+  }
+  .etapa:last-child { padding-bottom: 0; }
+  /* connector line from this badge down to the next */
+  .etapa:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 21px;
+    top: 44px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--accent);
+    opacity: 0.35;
+  }
+  .badge {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-ink);
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+  }
+  .etapa-cuerpo { padding-top: 0.15rem; }
+  .etapa .actor {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--signal);
+    margin-bottom: 0.25rem;
+  }
+  .etapa p { font-size: 0.93rem; color: var(--ink-soft); margin-top: 0.3rem; max-width: 52ch; }
+
+  /* ---------- Roles ---------- */
+  .roles { display: flex; flex-direction: column; margin-top: 1.4rem; }
+  .rol {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+    padding: 0.95rem 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .rol:first-child { border-top: 0; padding-top: 0; }
+  .rol b {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .rol b span {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .rol p { font-size: 0.93rem; color: var(--ink-soft); max-width: 56ch; }
+
+  /* ---------- Rules grid ---------- */
+  .reglas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1px;
+    margin-top: 1.4rem;
+    background: var(--hairline);
+    border: 1px solid var(--hairline);
+  }
+  .regla {
+    background: var(--sheet);
+    padding: 0.9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.22rem;
+  }
+  .banda.alt .regla { background: var(--band); }
+  .regla .cod {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+  .regla b { font-family: var(--display); font-weight: 600; font-size: 0.95rem; }
+  .regla p { font-size: 0.85rem; color: var(--ink-soft); }
+
+  /* ---------- Stack ---------- */
+  .grupo { margin-top: 1.3rem; }
+  .grupo-tit {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.55rem;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .chip {
+    font-family: var(--mono);
+    font-size: 0.73rem;
+    padding: 0.28rem 0.55rem;
+    border: 1px solid var(--hairline);
+    background: var(--sheet);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .banda.alt .chip { background: var(--band); }
+  .chip b { color: var(--accent); font-weight: 600; }
+
+  .capas { margin-top: 1.4rem; border: 1px solid var(--hairline); }
+  .capa {
+    display: grid;
+    grid-template-columns: 116px 1fr;
+    gap: 0.9rem;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--hairline);
+    align-items: baseline;
+    background: var(--sheet);
+  }
+  .banda.alt .capa { background: var(--band); }
+  .capa:last-child { border-bottom: 0; }
+  .capa b { font-family: var(--display); font-weight: 600; font-size: 0.92rem; }
+  .capa span { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); }
+
+  /* ---------- Numbers ---------- */
+  .cifras {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: 1.4rem;
+    background: var(--hairline);
+    border: 1px solid var(--hairline);
+  }
+  @media (max-width: 460px) { .cifras { grid-template-columns: repeat(2, 1fr); } }
+  .cifra {
+    background: var(--sheet);
+    padding: 1.05rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .banda.alt .cifra { background: var(--band); }
+  .cifra b {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(1.7rem, 7vw, 2.3rem);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+    color: var(--signal-mark);
+  }
+  .cifra span {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- Sprints ---------- */
+  .sprints { display: flex; flex-wrap: wrap; gap: 1px; margin-top: 1.4rem; background: var(--hairline); border: 1px solid var(--hairline); }
+  .sprint {
+    flex: 1 1 110px;
+    background: var(--sheet);
+    padding: 0.75rem 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .banda.alt .sprint { background: var(--band); }
+  .sprint b { font-family: var(--display); font-weight: 600; font-size: 0.88rem; }
+  .sprint span { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.06em; color: var(--muted); }
+
+  /* ---------- Closing ---------- */
+  .cierre {
+    background: var(--accent);
+    color: var(--accent-ink);
+    padding: clamp(1.75rem, 5vw, 2.5rem) clamp(1.25rem, 5vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .cierre h2 { font-size: clamp(1.25rem, 4.5vw, 1.6rem); }
+  .cierre .normas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    opacity: 0.9;
+    padding-top: 0.9rem;
+    border-top: 1px solid color-mix(in srgb, var(--accent-ink) 30%, transparent);
+  }
+  .cierre .equipo {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    opacity: 0.88;
+    line-height: 1.9;
+  }
+</style>
+
+<div class="infografia">
+
+  <!-- ===== Portada ===== -->
+  <header class="portada">
+    <div class="kicker">UNPSJB · Facultad de Ingeniería · Sede Trelew</div>
+    <h1>Sistema de Gestión de Retroalimentación Académica</h1>
+    <p class="sub">Digitaliza el circuito completo de evaluación de la Facultad: de la encuesta que responde un estudiante al informe con el que el Departamento decide.</p>
+    <div class="portada-meta">
+      <span>Desarrollo de Software</span>
+      <span>ISFPP 2025</span>
+      <span>4 integrantes</span>
+      <span>12 semanas</span>
+    </div>
+  </header>
+
+  <!-- ===== 01 El problema ===== -->
+  <section class="banda alt">
+    <div class="num">01 · El problema</div>
+    <h2>Tres actores, tres herramientas sueltas</h2>
+
+    <div style="margin-top:1.3rem">
+      <div class="fila">
+        <div class="quien">Alumno</div>
+        <p>Responde en un sistema donde alcanza con su DNI y su fecha de nacimiento para entrar en su lugar.</p>
+      </div>
+      <div class="fila">
+        <div class="quien">Docente</div>
+        <p>Arma el informe de cátedra saltando entre pestañas: los resultados en un lado, el formulario en otro.</p>
+      </div>
+      <div class="fila">
+        <div class="quien">Departamento</div>
+        <p>Elabora el informe sintético enteramente por fuera del sistema.</p>
+      </div>
+    </div>
+
+    <p class="bajada"><strong>La información existe. Llega tarde, fragmentada y sin trazabilidad.</strong></p>
+  </section>
+
+  <!-- ===== 02 El circuito ===== -->
+  <section class="banda">
+    <div class="num">02 · La solución</div>
+    <h2>Cada etapa es el insumo de la siguiente</h2>
+    <p class="bajada">Un solo entorno para las cuatro instancias del circuito de retroalimentación.</p>
+
+    <div class="cadena">
+      <div class="etapa">
+        <div class="badge">1</div>
+        <div class="etapa-cuerpo">
+          <div class="actor">Alumno</div>
+          <h3>Encuesta de asignatura</h3>
+          <p>Una sola vez por materia y período. Anónima para todas las vistas del sistema.</p>
+        </div>
+      </div>
+
+      <div class="etapa">
+        <div class="badge">2</div>
+        <div class="etapa-cuerpo">
+          <div class="actor">Sistema</div>
+          <h3>Reporte automático</h3>
+          <p>Al cerrarse la encuesta, un proceso programado consolida las respuestas. Nadie lo arma a mano.</p>
+        </div>
+      </div>
+
+      <div class="etapa">
+        <div class="badge">3</div>
+        <div class="etapa-cuerpo">
+          <div class="actor">Docente</div>
+          <h3>Informe de Actividad Curricular</h3>
+          <p>Reflexiona sobre el dictado con el reporte a la vista. Una vez enviado, queda cerrado.</p>
+        </div>
+      </div>
+
+      <div class="etapa">
+        <div class="badge">4</div>
+        <div class="etapa-cuerpo">
+          <div class="actor">Departamento</div>
+          <h3>Informe Sintético de Carrera</h3>
+          <p>Agrupa los informes de la carrera y eleva conclusiones a la Secretaría Académica.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 03 Los roles ===== -->
+  <section class="banda alt">
+    <div class="num">03 · Actores</div>
+    <h2>Un sistema, cuatro miradas</h2>
+
+    <div class="roles">
+      <div class="rol">
+        <b>Alumno <span>RESPONDE</span></b>
+        <p>Contesta las encuestas de las materias en las que está inscripto y consulta su historial.</p>
+      </div>
+      <div class="rol">
+        <b>Docente <span>ANALIZA</span></b>
+        <p>Lee los reportes de sus materias, completa el informe curricular y compara contra el año anterior.</p>
+      </div>
+      <div class="rol">
+        <b>Departamento <span>CONSOLIDA</span></b>
+        <p>Genera los informes sintéticos y accede al tablero general de participación.</p>
+      </div>
+      <div class="rol">
+        <b>Administrador <span>GESTIONA</span></b>
+        <p>Integra las tres vistas con permisos totales.</p>
+      </div>
+    </div>
+
+    <p class="pie">Acceso por token: cada persona ve solo los paneles que sus roles habilitan.</p>
+  </section>
+
+  <!-- ===== 04 Las reglas ===== -->
+  <section class="banda">
+    <div class="num">04 · Reglas del negocio</div>
+    <h2>Lo difícil no fue programarlo</h2>
+    <p class="bajada">Fue entender qué reglas tenía que respetar.</p>
+
+    <div class="reglas">
+      <div class="regla">
+        <div class="cod">RN-01</div>
+        <b>Unicidad</b>
+        <p>Una respuesta por encuesta y ciclo lectivo.</p>
+      </div>
+      <div class="regla">
+        <div class="cod">RN-03</div>
+        <b>Anonimato</b>
+        <p>El docente ve datos agregados, nunca quién respondió.</p>
+      </div>
+      <div class="regla">
+        <div class="cod">RN-05</div>
+        <b>Inmutabilidad</b>
+        <p>Un informe cerrado no se modifica ni se elimina.</p>
+      </div>
+      <div class="regla">
+        <div class="cod">RN-08</div>
+        <b>Ventanas</b>
+        <p>Solo se completa dentro del calendario académico.</p>
+      </div>
+      <div class="regla">
+        <div class="cod">RN-09</div>
+        <b>Cierre automático</b>
+        <p>Un proceso cierra lo vencido y dispara los reportes.</p>
+      </div>
+      <div class="regla">
+        <div class="cod">RN-10</div>
+        <b>Sin reporte no hay informe</b>
+        <p>El docente necesita el reporte consolidado primero.</p>
+      </div>
+      <div class="regla">
+        <div class="cod">RN-13</div>
+        <b>Alertas</b>
+        <p>Detecta materias sin respuestas o con valoraciones negativas.</p>
+      </div>
+      <div class="regla">
+        <div class="cod">RN-16</div>
+        <b>Comparativa interanual</b>
+        <p>El docente mide su evolución contra el año anterior.</p>
+      </div>
+      <div class="regla">
+        <div class="cod">RN-11</div>
+        <b>Historial</b>
+        <p>Todos acceden en modo lectura a lo que enviaron.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 05 Cómo está hecho ===== -->
+  <section class="banda alt">
+    <div class="num">05 · Dimensión técnica</div>
+    <h2>Arquitectura en capas</h2>
+    <p class="bajada">Para que la regla de negocio viva en un solo lugar.</p>
+
+    <div class="capas">
+      <div class="capa"><b>Presentación</b><span>Consume la API REST e inyecta el token.</span></div>
+      <div class="capa"><b>Controladores</b><span>Endpoints, códigos HTTP y permisos de rol.</span></div>
+      <div class="capa"><b>Servicios</b><span>Lógica de negocio pura. Acá viven las reglas.</span></div>
+      <div class="capa"><b>Datos</b><span>Modelo relacional y contratos validados.</span></div>
+    </div>
+
+    <div class="grupo">
+      <div class="grupo-tit">Frontend</div>
+      <div class="chips">
+        <span class="chip"><b>React</b> 19</span>
+        <span class="chip"><b>TypeScript</b> 5.8</span>
+        <span class="chip"><b>Vite</b> 7</span>
+        <span class="chip"><b>Bootstrap</b> 5.3</span>
+        <span class="chip"><b>Recharts</b></span>
+        <span class="chip"><b>Zod</b></span>
+        <span class="chip"><b>jsPDF</b></span>
+      </div>
+    </div>
+
+    <div class="grupo">
+      <div class="grupo-tit">Backend</div>
+      <div class="chips">
+        <span class="chip"><b>FastAPI</b></span>
+        <span class="chip"><b>SQLAlchemy</b> 2.0</span>
+        <span class="chip"><b>Pydantic</b> 2</span>
+        <span class="chip"><b>JWT</b></span>
+        <span class="chip"><b>APScheduler</b></span>
+        <span class="chip"><b>SQLite</b> → PostgreSQL</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 06 En números ===== -->
+  <section class="banda">
+    <div class="num">06 · El proyecto en números</div>
+    <h2>Doce semanas de trabajo</h2>
+
+    <div class="cifras">
+      <div class="cifra"><b>387</b><span>Commits</span></div>
+      <div class="cifra"><b>61</b><span>Pull requests</span></div>
+      <div class="cifra"><b>29</b><span>Ramas</span></div>
+      <div class="cifra"><b>86</b><span>Endpoints REST</span></div>
+      <div class="cifra"><b>21</b><span>Tablas</span></div>
+      <div class="cifra"><b>12,3k</b><span>Líneas</span></div>
+    </div>
+  </section>
+
+  <!-- ===== 07 Gestión ===== -->
+  <section class="banda alt">
+    <div class="num">07 · Dimensión gestión</div>
+    <h2>Scrum, sprints de dos semanas</h2>
+    <p class="bajada">Cada sprint cerró con software funcionando, review en cuatro dimensiones y retrospectiva.</p>
+
+    <div class="sprints">
+      <div class="sprint"><b>Fundamentación</b><span>VSM + BACKLOG</span></div>
+      <div class="sprint"><b>Sprint 0</b><span>INMERSIÓN</span></div>
+      <div class="sprint"><b>Sprint 1</b><span>PLANNING POKER</span></div>
+      <div class="sprint"><b>Sprint 2</b><span>BURNDOWN</span></div>
+      <div class="sprint"><b>Sprint 3</b><span>VELOCITY</span></div>
+      <div class="sprint"><b>Sprint 4</b><span>ENTREGA</span></div>
+    </div>
+
+    <p class="pie">Backlog priorizado en GitHub Projects a partir del User Story Mapping.</p>
+  </section>
+
+  <!-- ===== Cierre ===== -->
+  <footer class="cierre">
+    <h2>Ahora, el sistema funcionando</h2>
+    <p>Vamos a recorrer el circuito completo con un usuario de cada rol.</p>
+    <div class="normas">
+      <span>Disposición CDFI N.º 005/2014 — Encuestas a estudiantes</span>
+      <span>Resolución CDFI N.º 283/2015 — Informes curriculares y sintéticos</span>
+    </div>
+    <div class="equipo">
+      Darío Martín Lizama · Franco Soler · Nicolás Arenas · Jonás Agustín Lückeheide<br>
+      Cátedra: Dr. Ing. Leonardo Ordinez · Lic. Bruno Pazos
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>

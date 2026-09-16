@@ -1,0 +1,30 @@
+FLUJO DIARIO - RA-grupo-5
+=========================
+
+Stack: FastAPI + SQLite (backend) / React 19 + Vite + Bootstrap (frontend)
+Requiere 2 terminales.
+
+--- TERMINAL 1: BACKEND (puerto 8000) ---
+cd ~/Proyectos/sistema-reporte-academico-UNPSJB/backend
+source venv/bin/activate
+uvicorn src.main:app --reload
+
+Docs API: http://localhost:8000/docs
+
+--- TERMINAL 2: FRONTEND (puerto 5173) ---
+cd ~/Proyectos/sistema-reporte-academico-UNPSJB/frontend/react-app
+npm run dev
+
+App: http://localhost:5173
+
+--- SOLO LA PRIMERA VEZ / SI FALLA ---
+Backend (deps):   cd backend && source venv/bin/activate && pip install -r requirements.txt
+Frontend (deps):  cd frontend/react-app && npm install
+Datos de prueba:  cd backend && source venv/bin/activate && python populate_database.py
+                  (correr el backend antes, para que se cree database.db)
+
+--- NOTAS ---
+- El backend lee backend/.env (DB_URL, ENV=dev).
+- CORS solo permite http://localhost:5173: no cambies el puerto del front.
+- El front apunta fijo a http://localhost:8000 (src/api/client.ts).
+- Salir: Ctrl+C en cada terminal. Desactivar venv: deactivate

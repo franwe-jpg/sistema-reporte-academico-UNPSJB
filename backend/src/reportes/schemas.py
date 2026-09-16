@@ -28,4 +28,10 @@ class ReporteListadoItem(BaseModel):
     informe_id: int | None
 
 
-
+class EncuestaAbiertaItem(BaseModel):
+    """Encuesta todavia en curso de una asignatura del docente."""
+    id: int
+    asignatura: str
+    ciclo_lectivo: int
+    fecha_fin: date
+    respuestas: int

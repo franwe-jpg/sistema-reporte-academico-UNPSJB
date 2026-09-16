@@ -14,6 +14,8 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import BotonAutocompletar from '../componentes/BotonAutocompletar';
+import { TEXTO_ENCUESTA, elegirOpcion } from '../datosDeEjemplo';
 
 import { useResponderEncuesta } from '../hook/useResponderEncuesta';
 import Variable from '../componentes/Variable';
@@ -64,7 +66,8 @@ function ResponderEncuesta() {
         handleSubmit,
         formState: { errors, isSubmitting },
         reset,
-        trigger
+        trigger,
+        setValue
     } = useForm<SurveyFormData>({
         defaultValues: defaultValues,
         resolver: schema ? zodResolver(schema) : undefined,
@@ -72,6 +75,28 @@ function ResponderEncuesta() {
     });
 
     const [activeTab, setActiveTab] = useState<string | null>(null);
+
+    /** Carga toda la encuesta con datos de ejemplo, para las demostraciones. */
+    const completarDeEjemplo = () => {
+        if (!encuesta) return;
+        encuesta.variables.forEach((variable) => {
+            variable.preguntas.forEach((pregunta) => {
+                const campo = obtenerNombreCampo(pregunta.id);
+                if (pregunta.tipo === 'open') {
+                    setValue(campo, TEXTO_ENCUESTA, { shouldValidate: true });
+                    return;
+                }
+                const opciones = (pregunta.pregunta_opcion || [])
+                    .filter((po) => po?.opcion_respuesta && po.id_opcion_respuesta != null)
+                    .map((po) => ({
+                        texto: po.opcion_respuesta!.texto_opcion,
+                        valor: po.id_opcion_respuesta!,
+                    }));
+                const elegida = elegirOpcion(opciones);
+                if (elegida != null) setValue(campo, elegida, { shouldValidate: true });
+            });
+        });
+    };
 
     useEffect(() => {
         reset(defaultValues); 
@@ -213,7 +238,7 @@ function ResponderEncuesta() {
                         </Alert>
                     )}
 
-                    <div className="d-flex justify-content-between mt-4">
+                    <div className="d-flex justify-content-between align-items-center mt-4">
                       <Button 
                           variant="secondary" 
                           onClick={handlePrevious}
@@ -222,6 +247,11 @@ function ResponderEncuesta() {
                       >
                           Anterior
                       </Button>
+
+                      <BotonAutocompletar
+                        onClick={completarDeEjemplo}
+                        disabled={isSubmitting}
+                      />
 
                       <Button
                         variant="primary"

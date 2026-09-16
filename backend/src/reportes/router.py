@@ -35,6 +35,17 @@ def read_reportes_disponibles(db: Session = Depends(get_db),
 
 # Endpoint para pedir el informe y usar "Ver Informe" a partir del id del reporte
 @router.get(
+    "/encuestas-abiertas",
+    response_model=list[schemas.EncuestaAbiertaItem],
+    dependencies=[Depends(require_permissions(PermissionName.VER_REPORTES))],
+)
+def read_encuestas_abiertas(db: Session = Depends(get_db),
+    current_persona = Depends(get_current_persona)):
+    """Encuestas en curso de las asignaturas que integra el docente."""
+    return services.listar_encuestas_abiertas(db, current_persona.id)
+
+
+@router.get(
     "/{reporte_id}/informe",
     response_model=dict | None,
     dependencies=[Depends(require_permissions(PermissionName.VER_REPORTES))],
@@ -58,6 +69,17 @@ def read_reporte(reporte_id: int, db: Session = Depends(get_db)):
 
 
 # Estos endpoints los usará admin/secretaría más adelante; por ahora sin permisos extra:
+@router.post(
+    "/desde-encuesta/{id_encuesta}",
+    response_model=schemas.Reporte,
+    dependencies=[Depends(require_permissions(PermissionName.VER_REPORTES))],
+)
+def generar_reporte_desde_encuesta(id_encuesta: int, db: Session = Depends(get_db),
+    current_persona = Depends(get_current_persona)):
+    """Cierra la encuesta y consolida su reporte, como hace el proceso automatico."""
+    return services.cerrar_encuesta_y_generar_reporte(db, id_encuesta, current_persona.id)
+
+
 @router.post("/", response_model=schemas.Reporte)
 def create_reporte(reporte: schemas.ReporteCreate, db: Session = Depends(get_db)):
     return services.crear_reporte(db, reporte)

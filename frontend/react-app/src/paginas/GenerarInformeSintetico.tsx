@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import BotonAutocompletar from "../componentes/BotonAutocompletar";
+import {
+  TEXTO_INFORME_SINTETICO,
+  COMISION_ASESORA_EJEMPLO,
+  INTEGRANTES_EJEMPLO,
+} from "../datosDeEjemplo";
 import {
   Container,
   Form,
@@ -79,6 +85,17 @@ export default function GenerarInformeSintetico() {
   const [comisionAsesora, setComisionAsesora] = useState("");
   const [integrantes, setIntegrantes] = useState("");
   const [saving, setSaving] = useState(false);
+
+  /** Carga el informe sintetico con datos de ejemplo, para las demostraciones. */
+  const completarDeEjemplo = useCallback(() => {
+    if (!informeBase) return;
+    setComisionAsesora(COMISION_ASESORA_EJEMPLO);
+    setIntegrantes(INTEGRANTES_EJEMPLO);
+    informeBase.preguntas?.forEach((pregunta: any) => {
+      const idPreguntaOpcion = pregunta.pregunta_opcion?.[0]?.id;
+      if (idPreguntaOpcion) setTextoRespuesta(idPreguntaOpcion, TEXTO_INFORME_SINTETICO);
+    });
+  }, [informeBase, setTextoRespuesta]);
 
   useEffect(() => {
     fetchInformeSinteticoBaseActual()
@@ -382,7 +399,12 @@ export default function GenerarInformeSintetico() {
                 );
               })}
 
-              <div className="d-flex justify-content-center mt-4">
+              <div className="d-flex flex-column align-items-center gap-3 mt-4">
+                <BotonAutocompletar
+                  onClick={completarDeEjemplo}
+                  disabled={saving}
+                />
+
                 <Button
                   type="submit"
                   variant="primary"

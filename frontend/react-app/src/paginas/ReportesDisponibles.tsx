@@ -13,9 +13,10 @@ import {
   Button         
 } from "react-bootstrap";
 import { isGeneracionInformeCurricularActiva, getToday, getRangoFechasInformeCurricular } from "../calendarioAcademico";
+import EncuestasEnCurso from "../componentes/EncuestasEnCurso";
 
 export default function ReportesDisponibles() {
-  const { reportesDisponibles, loading, error } = useReportes();
+  const { reportesDisponibles, loading, error, refetch } = useReportes();
   const today = getToday();
   const currentYear = today.getFullYear();
 
@@ -106,6 +107,8 @@ export default function ReportesDisponibles() {
     <Container className="my-4">
       <Row>
         <Col md={10} lg={8} className="mx-auto">
+          <EncuestasEnCurso onReporteGenerado={refetch} />
+
           <Card className="border rounded shadow-sm ">
             
             {/* HEADER  */}

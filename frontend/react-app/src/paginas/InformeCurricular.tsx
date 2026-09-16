@@ -15,6 +15,12 @@ import {
   Spinner,
 } from "react-bootstrap";
 import ResumenVariable from "../componentes/ResumenVariable";
+import BotonAutocompletar from "../componentes/BotonAutocompletar";
+import {
+  TEXTO_INFORME_CURRICULAR,
+  COMISIONES_TEORICAS_EJEMPLO,
+  COMISIONES_PRACTICAS_EJEMPLO,
+} from "../datosDeEjemplo";
 import "../styles/informe.css"; 
 
 import { useAlertaFlotante } from "../hook/useAlertaFlotante";
@@ -63,6 +69,19 @@ export default function InformeCurricular() {
   const [cantTeoricas, setCantTeoricas] = useState<number | "">("");
   const [cantPracticas, setCantPracticas] = useState<number | "">("");
   const [saving, setSaving] = useState(false);
+
+  /** Carga el informe con datos de ejemplo, para las demostraciones. */
+  const completarDeEjemplo = useCallback(() => {
+    if (!informeBase) return;
+    const inscriptos = reporte?.encuesta_asignatura?.respuestas?.length ?? 0;
+    setCantInscriptos(inscriptos > 0 ? inscriptos : 20);
+    setCantTeoricas(COMISIONES_TEORICAS_EJEMPLO);
+    setCantPracticas(COMISIONES_PRACTICAS_EJEMPLO);
+    informeBase.preguntas?.forEach((pregunta: any) => {
+      const idPreguntaOpcion = pregunta.pregunta_opcion?.[0]?.id;
+      if (idPreguntaOpcion) setTextoRespuesta(idPreguntaOpcion, TEXTO_INFORME_CURRICULAR);
+    });
+  }, [informeBase, reporte, setTextoRespuesta]);
   
 
   useEffect(() => {
@@ -436,7 +455,12 @@ export default function InformeCurricular() {
                       );
                     })}
 
-                    <div className="text-center mt-4">
+                    <div className="text-center mt-4 d-flex flex-column align-items-center gap-3">
+                      <BotonAutocompletar
+                        onClick={completarDeEjemplo}
+                        disabled={saving}
+                      />
+
                       <Button
                         variant="primary"
                         type="submit"

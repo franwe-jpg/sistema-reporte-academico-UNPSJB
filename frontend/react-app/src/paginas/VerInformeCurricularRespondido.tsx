@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Container, Form, Button, Alert, Card, Spinner, Row, Col } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Card, Spinner } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {EncabezadoCurricular } from "../componentes/LayoutEncabezados";
@@ -133,7 +133,7 @@ export default function VerInformeCurricularRespondido() {
   if (!informe || !informeBase) return null;
 
     // Variables administrativas para mostrar (read-only)
-    const { asignatura, ciclo_lectivo, sede, docente, cant_alumnos_insc, cant_comisiones_practicas, cant_comisiones_teoricas } = informe;
+    const { asignatura, ciclo_lectivo, sede, cant_alumnos_insc, cant_comisiones_practicas, cant_comisiones_teoricas } = informe;
 
     return (
         <Container className="my-4">

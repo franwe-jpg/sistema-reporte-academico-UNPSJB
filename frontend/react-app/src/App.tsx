@@ -13,8 +13,6 @@ import InformeCurricular from "./paginas/InformeCurricular.tsx";
 import ReportesDisponibles from "./paginas/ReportesDisponibles.tsx";
 import EncuestasRespondidas from "./paginas/EncuestasRespondidas.tsx";
 import InformesSinteticosDisponibles from "./paginas/InformesSinteticosDisponibles.tsx";
-import InformeSintetico from "./paginas/InformeSintetico.tsx";
-import VerInformeCurricular from "./paginas/VerInformeCurricularRespondido.tsx";
 import EstadisticasDepartamentoPage from "./paginas/EstadisticasDepartamentoPage.tsx";
 import GenerarInformeSintetico from "./paginas/GenerarInformeSintetico.tsx";
 import VerEncuesta from "./paginas/VerEncuestaRespondida.tsx";

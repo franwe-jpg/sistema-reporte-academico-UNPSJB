@@ -19,7 +19,7 @@ interface Props {
 }
 
 
-const EncabezadoCurricular: React.FC<Props> = ({ asignatura, anio, docente, carrera, ciclo_lectivo, sede, cant_alumnos_insc, cant_comisiones_practicas, cant_comisiones_teoricas, children }) => {
+const EncabezadoCurricular: React.FC<Props> = ({ asignatura, docente, carrera, ciclo_lectivo, sede, cant_alumnos_insc, cant_comisiones_practicas, cant_comisiones_teoricas, children }) => {
   return (
     <div style={{ padding: '2rem', textAlign: "left" }}>
         <Card className="border rounded shadow-sm mb-4">
@@ -75,7 +75,6 @@ const EncabezadoCurricular: React.FC<Props> = ({ asignatura, anio, docente, carr
 
 const EncabezadoReporte: React.FC<Props> = ({
   asignatura,
-  anio,
   docente,
   carrera,
   ciclo_lectivo,
@@ -134,8 +133,7 @@ const EncabezadoSintetico: React.FC<Props> = ({
   sede,
   cursado,
   comision_asesora,
-  integrantes,
-  children
+  integrantes
 }) => {
   return (
     <Card className="mb-4 border rounded shadow-sm">

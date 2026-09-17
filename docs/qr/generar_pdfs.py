@@ -35,7 +35,7 @@ BASE_DATOS = RAIZ / "backend" / "demo_snapshot.db"
 LOGO = RAIZ / "docs" / "identidad" / "logo-unpsjb.png"
 
 BASE_URL = sys.argv[1] if len(sys.argv) > 1 else (
-    "https://sistema-reporte-academico-unpsjb.encuestas-unpsjb.workers.dev"
+    "https://sistema-reporte-academico-unpsjb.unpsjb.workers.dev"
 )
 PASSWORD = "1234"
 
@@ -235,7 +235,7 @@ def main() -> None:
         c,
         "El circuito de retroalimentación académica",
         "DESARROLLO DE SOFTWARE · ISFPP 2025",
-        f"{BASE_URL}/infografia.html",
+        f"{BASE_URL}/infografia",
         "Escaneá el código para ver de qué se trata",
     )
     c.showPage()

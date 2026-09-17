@@ -2,7 +2,11 @@
   // Publica el frontend compilado como sitio estatico en Cloudflare Workers.
   // El backend NO se despliega aca: corre aparte (Render) y su direccion entra
   // por la variable VITE_API_URL al compilar.
-  "name": "encuestas",
+  //
+  // El nombre tiene que coincidir con el del proyecto en Workers Builds: el CI
+  // ignora este valor y usa el suyo, avisando del desajuste. Para cambiar la
+  // direccion publica hay que crear otro proyecto con el nombre deseado.
+  "name": "sistema-reporte-academico-unpsjb",
   "compatibility_date": "2026-09-01",
 
   "assets": {

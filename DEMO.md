@@ -48,6 +48,14 @@ Tarda menos de un segundo. Usa la API de backup de SQLite para sobrescribir la
 base en el lugar, así que las conexiones que el backend tiene abiertas siguen
 sirviendo y **no hace falta reiniciarlo**. Refrescá el navegador y listo.
 
+También hay un **botón en la pantalla de login**: *"Reiniciar datos de la
+demostración"*. Pide confirmación y hace exactamente lo mismo, sin salir del
+navegador. Es lo más cómodo entre tanda y tanda.
+
+> El botón depende de `DEMO_RESET=1` en `backend/.env`. **Si alguna vez publicás
+> esto en internet, poné `DEMO_RESET=0`**: el endpoint no pide credenciales, así
+> que cualquiera que abra el login podría borrar la base.
+
 Si querés empezar la jornada de cero: `./demo.sh --reset`.
 
 > **Para resetear entre tandas usá siempre `./reset.sh`, nunca `seed_demo.py`.**
@@ -300,6 +308,9 @@ Rama `feat/mejoras-expo-2026`, sobre `main` con `dev` ya mergeado.
 | `frontend/.../EncuestasEnCurso.tsx` | Nuevo: encuestas abiertas + "Cerrar y generar reporte" | Expone la operación anterior en el panel del docente |
 | `frontend/.../BotonAutocompletar.tsx` y `datosDeEjemplo.ts` | Nuevos: botón "Completar de ejemplo" en los tres formularios | Completar 16 preguntas a mano en vivo no aporta nada |
 | `frontend/src/pdf/` y `BotonDescargarPdf.tsx` | Nuevos: descarga en PDF desde los listados | El PDF existía solo dentro del detalle, y por captura de pantalla |
+| `backend/src/demo/` y `BotonReiniciarDemo.tsx` | Nuevos: botón de reinicio en el login | Resetear entre tandas sin ir a la terminal |
+| `frontend/.../api/client.ts`, `backend/src/main.py` | `VITE_API_URL` y `CORS_ORIGINS` configurables | Estaban fijos en localhost; hacen falta para publicar el sistema |
+| `docs/infografia.html` | Rehecha con la identidad institucional | Azul #004992 y ámbar #FF9900 del manual, escudo y tipografía geométrica |
 | `frontend/.../InformesSinteticosDisponibles.tsx` | Cada carrera muestra comisión, sede, ciclo y cursado | Las dos filas de la misma carrera se veían idénticas |
 | `frontend/.../LoginPage.tsx` | "Solicitar alta de nuevo usuario" ahora abre un formulario real | El link existía con `href="#"` y no hacía nada |
 | `frontend/.../LoginPage.tsx` | Se lee `permData.nombre` además de `nombres` | El menú mostraba solo el apellido |

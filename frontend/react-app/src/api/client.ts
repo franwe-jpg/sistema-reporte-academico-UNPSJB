@@ -1,4 +1,6 @@
-const API_BASE = "http://localhost:8000";
+// Direccion de la API. Se puede cambiar sin tocar el codigo definiendo
+// VITE_API_URL (por ejemplo al publicar el frontend en otra direccion).
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 export async function apiFetch(path: string, init: RequestInit = {}) {
   const token = localStorage.getItem("token");

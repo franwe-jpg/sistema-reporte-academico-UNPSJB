@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import apiFetch from "../api/client.ts";
 import fondoLogin from "../assets/fondoLogin.jpg";
 import "../styles/loginPage.css";
+import BotonReiniciarDemo from "../componentes/BotonReiniciarDemo";
 
 type Modo = "login" | "alta" | "recupero";
 
@@ -261,6 +262,8 @@ export default function LoginPage() {
                 ¿Olvidaste tu contraseña?
               </button>
             </div>
+
+            <BotonReiniciarDemo />
           </form>
         )}
 

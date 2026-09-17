@@ -30,6 +30,7 @@ from src.estadisticas.router import router as estadisticas_router
 from src.cursadas.router import router as cursadas_router
 from src.seguridad.router import router as seguridad_router
 from src.auth.router import router as auth_router
+from src.demo.router import router as demo_router
 from src.seguridad.services import SeguridadService
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -75,8 +76,14 @@ app = FastAPI(root_path=ROOT_PATH, lifespan=db_creation_lifespan)
 
 # ---------- CORS (para permitir frontend React 5173) ----------
 
+# Origenes permitidos. Se pueden ampliar sin tocar el codigo con la variable
+# CORS_ORIGINS del .env (lista separada por comas), necesaria si el frontend se
+# publica en otra direccion.
 origins = [
     "http://localhost:5173",
+]
+origins += [
+    o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()
 ]
 
 app.add_middleware(
@@ -89,7 +96,8 @@ app.add_middleware(
 
 # ---------- ROUTERS (auth primero) ----------
 
-app.include_router(auth_router)          
+app.include_router(auth_router)
+app.include_router(demo_router)          
 app.include_router(seguridad_router)     
 app.include_router(personas_router)
 app.include_router(encuestas_base_router)

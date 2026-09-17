@@ -181,3 +181,5 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/python
 
 *.db
+# PDF generados para imprimir (se regeneran con docs/qr/generar_pdfs.py)
+docs/qr/*.pdf

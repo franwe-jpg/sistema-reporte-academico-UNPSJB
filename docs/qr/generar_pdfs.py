@@ -120,9 +120,16 @@ def hoja_qr(c: canvas.Canvas, titulo: str, subtitulo: str, url: str, pie: str) -
     c.rect(x - mm(4), y - lado - mm(4), lado + mm(8), lado + mm(8), stroke=1, fill=0)
 
     y = y - lado - mm(16)
-    y = centrado(c, pie, y, "Helvetica-Bold", 12, TINTA)
-    y -= mm(2)
-    centrado(c, url.replace("https://", ""), y, "Helvetica", 8.5, GRIS)
+    y = centrado(c, pie, y, "Helvetica", 12, GRIS)
+    y -= mm(4)
+
+    # La direccion va grande y en negrita: es la alternativa para quien no pueda
+    # escanear el codigo y tenga que escribirla a mano.
+    limpia = url.replace("https://", "")
+    tam = 15
+    while c.stringWidth(limpia, "Helvetica-Bold", tam) > ANCHO - 2 * MARGEN and tam > 8:
+        tam -= 0.5
+    centrado(c, limpia, y, "Helvetica-Bold", tam, AZUL)
 
 
 def credenciales_docentes() -> list[tuple[str, str, int]]:

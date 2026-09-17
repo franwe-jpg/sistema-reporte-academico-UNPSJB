@@ -1,0 +1,33 @@
+# Despliegue del backend (FastAPI) en Render.
+#
+# El frontend NO va acá: se publica como sitio estatico en Cloudflare Pages.
+# Ver DEPLOY.md para el paso a paso.
+#
+# La base se arma durante el build: demo.db y demo_snapshot.db no se versionan,
+# asi que el seed corre como parte de la compilacion y queda dentro de la
+# instancia. Eso ademas deja el snapshot disponible para el boton de reinicio.
+services:
+  - type: web
+    name: encuestas-unpsjb-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && python scripts/seed_demo.py --force
+    startCommand: uvicorn src.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /openapi.json
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: ENV
+        value: dev
+      - key: ROOT_PATH_DEV
+        value: ""
+      - key: DB_URL
+        value: sqlite:///./demo.db
+      # Cualquier origen: el frontend vive en otro dominio (Cloudflare Pages).
+      # Se puede reemplazar por la direccion exacta del sitio una vez publicado.
+      - key: CORS_ORIGINS
+        value: "*"
+      # Habilita el boton "Reiniciar datos de la demostracion" del login.
+      - key: DEMO_RESET
+        value: "1"

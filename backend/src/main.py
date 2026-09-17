@@ -86,10 +86,17 @@ origins += [
     o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()
 ]
 
+# Con CORS_ORIGINS=* se acepta cualquier origen. Hace falta cuando el frontend
+# se publica en una direccion que no se conoce de antemano (por ejemplo un tunel
+# con URL aleatoria). En ese caso hay que desactivar allow_credentials, porque el
+# navegador rechaza la combinacion comodin + credenciales; la app no usa cookies,
+# manda el token en la cabecera Authorization, asi que no la necesita.
+permitir_todos = "*" in origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"] if permitir_todos else origins,
+    allow_credentials=not permitir_todos,
     allow_methods=["*"],
     allow_headers=["*"],
 )

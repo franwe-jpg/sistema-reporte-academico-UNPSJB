@@ -17,6 +17,9 @@ export interface InformeSinteticoCarreraPayload {
 export interface ResumenSinteticoItem {
   uniqueKey: string; // para key de react
   carrera: any;
+  sede: string;
+  // Solo existe una vez que el informe sintetico fue generado.
+  comisionAsesora: string | null;
   ciclo: number;
   cuatrimestre: string; // "1° cuatrimestre" | "2° cuatrimestre"
   totalInformes: number;
@@ -119,6 +122,8 @@ export function useInformesSinteticos() {
             listaResumenes.push({
                 uniqueKey: key,
                 carrera,
+                sede: carrera?.sede ?? "—",
+                comisionAsesora: sintetico?.comision_asesora ?? null,
                 ciclo: combo.ciclo,
                 cuatrimestre: combo.cuatrimestreStr,
                 totalInformes: informesPorCarrera.length,

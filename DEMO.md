@@ -124,6 +124,11 @@ departamento. Carga todos los campos de una (en la encuesta marca las opciones
 más positivas) para que no tengas que completar dieciséis preguntas a mano
 delante de la gente. Después revisás y enviás.
 
+**Botón "Descargar"** — al lado de cada **"Ver"**, en los listados de encuestas
+respondidas, informes curriculares enviados e informes sintéticos. Baja el
+documento en PDF sin necesidad de abrir antes el detalle. Es texto real —se puede
+buscar y seleccionar—, no una captura de pantalla.
+
 **Botón "Cerrar y generar reporte"** — en el panel del docente, arriba del
 listado, aparece la tarjeta **Encuestas en curso** con las encuestas abiertas de
 sus materias y cuántas respuestas llevan. Mientras una encuesta sigue abierta no
@@ -294,6 +299,8 @@ Rama `feat/mejoras-expo-2026`, sobre `main` con `dev` ya mergeado.
 | `backend/src/reportes/` | Nuevos `GET /reportes/encuestas-abiertas` y `POST /reportes/desde-encuesta/{id}` | Sin esto el docente no puede ver la respuesta que acaba de dejar el visitante: el reporte solo existe cuando la encuesta cierra |
 | `frontend/.../EncuestasEnCurso.tsx` | Nuevo: encuestas abiertas + "Cerrar y generar reporte" | Expone la operación anterior en el panel del docente |
 | `frontend/.../BotonAutocompletar.tsx` y `datosDeEjemplo.ts` | Nuevos: botón "Completar de ejemplo" en los tres formularios | Completar 16 preguntas a mano en vivo no aporta nada |
+| `frontend/src/pdf/` y `BotonDescargarPdf.tsx` | Nuevos: descarga en PDF desde los listados | El PDF existía solo dentro del detalle, y por captura de pantalla |
+| `frontend/.../InformesSinteticosDisponibles.tsx` | Cada carrera muestra comisión, sede, ciclo y cursado | Las dos filas de la misma carrera se veían idénticas |
 | `frontend/.../LoginPage.tsx` | "Solicitar alta de nuevo usuario" ahora abre un formulario real | El link existía con `href="#"` y no hacía nada |
 | `frontend/.../LoginPage.tsx` | Se lee `permData.nombre` además de `nombres` | El menú mostraba solo el apellido |
 | `backend/scripts/` | Nuevos: `seed_demo.py`, `reset_demo.py`, `verificar_demo.py` | No existía ningún seed en el repo |

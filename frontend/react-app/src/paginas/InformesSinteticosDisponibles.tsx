@@ -6,6 +6,9 @@ import {
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { isGeneracionInformeSinteticoActivo, getToday } from "../calendarioAcademico"; 
+import BotonDescargarPdf from "../componentes/BotonDescargarPdf";
+import { documentoDeInformeSintetico } from "../pdf/construirDocumentos";
+import apiFetch from "../api/client";
 
 export default function InformesSinteticosDisponibles() {
   // 1. HOOK
@@ -162,15 +165,28 @@ export default function InformesSinteticosDisponibles() {
             className="d-flex align-items-start"
           >
             <div className="me-3 flex-grow-1 text-start">
-              <span className="fw-bold">{r.carrera.nombre}</span>
+              <span className="fw-bold fs-5">{r.carrera.nombre}</span>
+              {r.comisionAsesora && (
+                <>
+                  <br />
+                  <small className="text-muted">
+                    Comisión {r.comisionAsesora}
+                  </small>
+                </>
+              )}
+              <br />
+              <small className="text-muted">
+                Sede: {r.sede}
+              </small>
+              <br />
+              <small className="text-muted">
+                {`Ciclo lectivo: ${r.ciclo} | Cursado: ${r.cuatrimestre}`}
+              </small>
               <br />
               <small className="text-muted">
                 Cantidad de informes:
                 <Badge bg="secondary" pill className="ms-1">{r.totalInformes}</Badge>
-              </small>
-              <br />
-              <small className="text-muted">
-                Informes publicados:
+                <span className="ms-3">Publicados:</span>
                 <Badge bg="success" pill className="ms-1">{r.publicados}</Badge>
               </small>
             </div>
@@ -182,14 +198,26 @@ export default function InformesSinteticosDisponibles() {
                   No disponible
                 </span>
               ) : r.sinteticoId ? (
-                <Link
-                  to={`/departamento/informes-sinteticos-respondidos/${r.sinteticoId}`}
-                  className="btn btn-outline-primary btn-sm"
-                  title="Ver informe"
-                >
-                  <i className="bi bi-file-earmark-text-fill"></i>
-                  <span className="ms-2 d-none d-md-inline">Ver informe</span>
-                </Link>
+                <>
+                  <Link
+                    to={`/departamento/informes-sinteticos-respondidos/${r.sinteticoId}`}
+                    className="btn btn-outline-primary btn-sm"
+                    title="Ver informe"
+                  >
+                    <i className="bi bi-file-earmark-text-fill"></i>
+                    <span className="ms-2 d-none d-md-inline">Ver informe</span>
+                  </Link>
+
+                  <BotonDescargarPdf
+                    construir={async () => {
+                      const res = await apiFetch(
+                        `/informe-sintetico-carrera/${r.sinteticoId}`
+                      );
+                      if (!res.ok) throw new Error("No se pudo leer el informe");
+                      return documentoDeInformeSintetico(await res.json());
+                    }}
+                  />
+                </>
               ) : puedeGenerar ? (
                 <Link
                   to={`/departamento/generar-informe/${r.carrera.id}?ciclo=${r.ciclo}&cuatrimestre=${r.cuatrimestre}`}

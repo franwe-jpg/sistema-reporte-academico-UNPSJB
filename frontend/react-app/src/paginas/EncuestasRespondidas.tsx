@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useEncuestas } from "../hook/useEncuestas";
 import { Link } from "react-router-dom";
+import BotonDescargarPdf from "../componentes/BotonDescargarPdf";
+import { documentoDeEncuesta } from "../pdf/construirDocumentos";
 import { 
   Container, 
   Col, 
@@ -195,14 +197,20 @@ export default function EncuestasRespondidas() {
                       </small>
                     </div>
                     
-                    <Link 
-                      to={`/alumno/encuestas-respondidas/${encuesta.id}`} 
-                      className="btn btn-outline-primary btn-sm align-self-center"
-                      title="Ver Informe"
-                    >
-                      <i className="bi bi-file-earmark-text-fill"></i>
-                      <span className="ms-2 d-none d-md-inline">Ver</span>
-                    </Link>
+                    <div className="d-flex gap-2 align-self-center">
+                      <Link 
+                        to={`/alumno/encuestas-respondidas/${encuesta.id}`} 
+                        className="btn btn-outline-primary btn-sm"
+                        title="Ver Informe"
+                      >
+                        <i className="bi bi-file-earmark-text-fill"></i>
+                        <span className="ms-2 d-none d-md-inline">Ver</span>
+                      </Link>
+
+                      <BotonDescargarPdf
+                        construir={() => documentoDeEncuesta(encuesta)}
+                      />
+                    </div>
                   </ListGroup.Item>
                 ))
               )}

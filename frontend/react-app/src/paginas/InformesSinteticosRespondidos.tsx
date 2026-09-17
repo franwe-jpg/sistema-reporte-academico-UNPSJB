@@ -15,6 +15,8 @@ import {
 import type { InformeSinteticoCarrera } from "../types/InformeSintetico";
 import apiFetch from "../api/client";
 
+import BotonDescargarPdf from "../componentes/BotonDescargarPdf";
+import { documentoDeInformeSintetico } from "../pdf/construirDocumentos";
 // Helper para obtener persona_id desde el JWT
 function getPersonaIdFromToken(): number | null {
   const token = localStorage.getItem("token");
@@ -282,14 +284,20 @@ export default function InformesSinteticosRespondidos() {
                         </small>
                       </div>
 
-                      <Link
-                        to={`/departamento/informes-sinteticos-respondidos/${informe.id}`}
-                        className="btn btn-outline-primary btn-sm align-self-center"
-                        title="Ver Informe Completo"
-                      >
-                        <i className="bi bi-file-earmark-text-fill me-2" />
-                        <span className="d-none d-md-inline">Ver</span>
-                      </Link>
+                      <div className="d-flex gap-2 align-self-center">
+                        <Link
+                          to={`/departamento/informes-sinteticos-respondidos/${informe.id}`}
+                          className="btn btn-outline-primary btn-sm"
+                          title="Ver Informe Completo"
+                        >
+                          <i className="bi bi-file-earmark-text-fill me-2" />
+                          <span className="d-none d-md-inline">Ver</span>
+                        </Link>
+
+                        <BotonDescargarPdf
+                          construir={() => documentoDeInformeSintetico(informe)}
+                        />
+                      </div>
                     </ListGroup.Item>
                   );
                 })

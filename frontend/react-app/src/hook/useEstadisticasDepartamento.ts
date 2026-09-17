@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { DashboardData } from "../types/Dashboard";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
 
 // CORRECCIÓN: Ahora acepta los 3 parámetros
 export function useEstadisticasDepartamento(

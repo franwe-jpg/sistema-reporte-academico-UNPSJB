@@ -1,0 +1,18 @@
+{
+  // Publica el frontend compilado como sitio estatico en Cloudflare Workers.
+  // El backend NO se despliega aca: corre aparte (Render) y su direccion entra
+  // por la variable VITE_API_URL al compilar.
+  "name": "sistema-reporte-academico-unpsjb",
+  "compatibility_date": "2026-09-01",
+
+  "assets": {
+    // Carpeta que deja "npm run build".
+    "directory": "./dist",
+
+    // La navegacion es del lado del cliente (React Router): rutas como /login o
+    // /alumno/encuestas-pendientes no existen como archivos. Sin esto, entrar
+    // directo a cualquiera de ellas devuelve 404; con esto se sirve index.html
+    // y el router resuelve la ruta.
+    "not_found_handling": "single-page-application"
+  }
+}

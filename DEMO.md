@@ -159,10 +159,12 @@ Ese es el punto que conviene que se lleven.
 ### Docente — leer el reporte y hacer el informe *(~5 min)*
 
 1. Salir y entrar con `1001` / `1234` (Leonardo Ordinez).
-2. **Listado de reportes disponibles**: tiene 3 materias.
+2. Ve **2 reportes generados** (Ingeniería de Software I, ya informado, y
+   Fundamentos Teóricos de Informática, pendiente) y, arriba, la tarjeta
+   **Encuestas en curso** con Desarrollo de Software.
    → *"El reporte no lo armó nadie: lo genera el sistema cuando cierra la
    encuesta."*
-3. En **Desarrollo de Software** → **Ver Reporte**: porcentajes por pregunta,
+3. En **Fundamentos Teóricos** → **Ver Reporte**: porcentajes por pregunta,
    inscriptos y encuestas procesadas.
 4. **Ver Estadísticas**: participación, satisfacción, promedio por variable y
    la torta.
@@ -184,9 +186,9 @@ Ese es el punto que conviene que se lleven.
 
 1. Salir y entrar con `2001` / `1234` (Claudia López).
 2. **Informes sintéticos**: hay dos filas de Licenciatura en Sistemas, una por
-   cuatrimestre. La del **2.º cuatrimestre** ahora muestra **6** informes
-   (los 5 que ya estaban más el que acaba de hacer Leo) y tiene **Generar**;
-   la del 1.º ya está presentada y muestra **Ver informe**.
+   cuatrimestre. La del **2.º cuatrimestre** suma el informe que acaba de hacer
+   Leo y tiene **Generar**; la del 1.º ya está presentada y muestra
+   **Ver informe**.
 3. **Generar** → se cargan los informes del período como insumo. Completar
    comisión asesora, integrantes y conclusiones. Enviar.
 4. **Estadísticas**: asignaturas evaluadas, docentes, respuestas, satisfacción

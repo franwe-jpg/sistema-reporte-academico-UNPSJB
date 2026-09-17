@@ -2,7 +2,7 @@
   // Publica el frontend compilado como sitio estatico en Cloudflare Workers.
   // El backend NO se despliega aca: corre aparte (Render) y su direccion entra
   // por la variable VITE_API_URL al compilar.
-  "name": "sistema-reporte-academico-unpsjb",
+  "name": "encuestas",
   "compatibility_date": "2026-09-01",
 
   "assets": {

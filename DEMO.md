@@ -104,6 +104,16 @@ El alta:
 
 El usuario creado así desaparece con el próximo `./reset.sh`.
 
+### Si te olvidás una contraseña
+
+**"¿Olvidaste tu contraseña?"** pide el DNI y *"última contraseña que recuerdes"*.
+Al continuar aparece un tercer campo, **Nueva contraseña**, y esa es la que queda
+guardada. No hay restricciones de longitud ni de complejidad.
+
+> El campo de la contraseña anterior **no se valida ni se guarda**: es una
+> verificación informal. Alcanza con que el DNI exista. Está bien para una demo,
+> no para producción.
+
 ---
 
 ## 5. Atajos para no perder tiempo en vivo
@@ -159,9 +169,15 @@ Ese es el punto que conviene que se lleven.
 5. Bajar hasta **Comparativa de Scores** → comparar contra **2025**: la materia
    mejoró en todas las variables.
    → *"Esto es la regla RN-16: el docente puede medir su evolución."*
-6. Volver al listado → **Nuevo Informe** (solo está habilitado en Desarrollo de
-   Software; las otras dos ya tienen informe hecho).
-7. Completar inscriptos / comisiones y los campos de texto. Enviar.
+6. Para hacer el informe hay **dos caminos**:
+   - **Rápido**: *Fundamentos Teóricos de Informática* ya tiene su reporte listo
+     → **Nuevo Informe**.
+   - **Completo** (el que muestra la cadena): arriba del listado está la tarjeta
+     **Encuestas en curso** con *Desarrollo de Software* y las respuestas
+     recibidas —incluida la del chico que acaba de responder—. **Cerrar y
+     generar reporte** consolida esas respuestas, y recién ahí aparece en el
+     listado con **Nuevo Informe**.
+7. Completar con **"Completar de ejemplo"** y enviar.
    → *"Desde que lo envía, queda cerrado. No se modifica ni se borra."*
 
 ### Departamento — consolidar la carrera *(~4 min)*
@@ -202,14 +218,21 @@ Todo sobre la carrera real: **Licenciatura en Sistemas**, sede Trelew, con
 Y además:
 
 - **35 personas**: 24 alumnos, 9 docentes, 1 departamento, 1 admin.
-- **14 encuestas de asignatura**:
-  - las **cerradas de 2026**, que generaron los 10 reportes;
-  - una de **2025** sobre Desarrollo de Software, que alimenta la comparativa;
-  - **3 abiertas** hasta el 12/12/2026 → las pendientes del alumno.
-- **9 informes curriculares cerrados**. El de *Desarrollo de Software* queda
-  abierto a propósito: es el paso en vivo del docente.
+- **Cada materia tiene una sola encuesta por ciclo lectivo**: o está abierta o ya
+  cerró. Nunca las dos, para que una misma materia no aparezca al mismo tiempo
+  en "pendientes" y en "respondidas".
+  - **3 abiertas** hasta el 12/12/2026 (Desarrollo de Software, Programación
+    Orientada a Objetos, Administración de Redes y Seguridad) → lo pendiente del
+    alumno. Al no haber cerrado, **todavía no tienen reporte**.
+  - **7 cerradas**, que generaron sus reportes.
+  - **2 de 2025** (Desarrollo de Software y Fundamentos Teóricos), que alimentan
+    la comparativa interanual.
+- **6 informes curriculares cerrados**. El de *Fundamentos Teóricos* queda sin
+  hacer a propósito: es el atajo del docente.
 - **1 informe sintético** presentado (1.er cuatrimestre). El del 2.º queda
   pendiente: es el paso en vivo del departamento.
+- **Franco y Nicolás** tienen 3 encuestas pendientes y 2 respondidas, de
+  **materias distintas**, así el historial no se confunde con lo pendiente.
 - **Álgebra** no tiene ninguna respuesta, para que dispare la alerta de
   participación.
 
@@ -264,6 +287,7 @@ Rama `feat/mejoras-expo-2026`, sobre `main` con `dev` ya mergeado.
 | `backend/src/estadisticas/services.py` | `_calcular_top` usa cursadas reales | Mostraba "Inscriptos (Est.): 50" para toda materia |
 | `backend/src/estadisticas/router.py` | Ciclo por defecto = año actual | Estaba fijo en 2025 |
 | `frontend` (varios) | Se quitaron 8 variables/imports sin usar | `npm run build` fallaba por `TS6133` |
+| `backend/src/auth/` | Nuevo `POST /auth/recuperar-password` | Cambiar la contraseña desde el login, sin depender de recordar la anterior |
 | `backend/src/auth/` | Nuevo `POST /auth/registro` | Alta de alumno desde el login, para crear al visitante en el momento |
 | `backend/src/reportes/` | Nuevos `GET /reportes/encuestas-abiertas` y `POST /reportes/desde-encuesta/{id}` | Sin esto el docente no puede ver la respuesta que acaba de dejar el visitante: el reporte solo existe cuando la encuesta cierra |
 | `frontend/.../EncuestasEnCurso.tsx` | Nuevo: encuestas abiertas + "Cerrar y generar reporte" | Expone la operación anterior en el panel del docente |

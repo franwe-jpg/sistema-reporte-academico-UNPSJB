@@ -29,3 +29,22 @@ class RegistroOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
     asignaturas_inscriptas: int
+
+
+class RecuperarPasswordIn(BaseModel):
+    """Recupero de contrasena desde la pantalla de login.
+
+    `password_recordada` se pide como verificacion informal y no se valida ni se
+    guarda: la unica condicion real es que el DNI exista.
+    """
+    dni: int = Field(gt=0, lt=100_000_000)
+    password_recordada: str = Field(min_length=1, max_length=200)
+    # Sin restricciones de complejidad; solo se evita la cadena vacia, que
+    # dejaria a la persona sin poder iniciar sesion.
+    password_nueva: str = Field(min_length=1)
+
+
+class RecuperarPasswordOut(BaseModel):
+    persona_id: int
+    nombre: str
+    apellido: str

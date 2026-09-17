@@ -116,15 +116,36 @@ ASIGNATURAS = [
     ("Administración de Redes y Seguridad", 4, Cursado.cuatrimestre2, "Bruno Zapellini", "baja"),
 ]
 
-# Materia sobre la que el docente completa el informe EN VIVO: es la unica que
-# queda con reporte generado y sin informe.
-MATERIA_EN_VIVO = "Desarrollo de Software"
+# Cada materia tiene UNA sola encuesta por ciclo lectivo: o esta abierta o ya
+# cerro. Sembrar las dos hacia que la misma materia apareciera a la vez en
+# "encuestas pendientes" y en "encuestas respondidas", como si estuviera
+# duplicada.
 
-# Materias con encuesta abierta hoy, para que el alumno tenga que responder.
+# Materias con la encuesta todavia abierta: son el trabajo pendiente del alumno.
+# Al no haber cerrado, no tienen reporte; el docente lo genera desde su panel.
 MATERIAS_CON_ENCUESTA_ABIERTA = [
     "Desarrollo de Software",
     "Programación Orientada a Objetos",
     "Administración de Redes y Seguridad",
+]
+
+# Materia que queda con reporte generado y sin informe: es el atajo para mostrar
+# el informe del docente sin tener que cerrar antes una encuesta.
+MATERIA_REPORTE_SIN_INFORME = "Fundamentos Teóricos de Informática"
+
+# Materias con encuesta del ciclo anterior, para que la comparativa interanual
+# tenga contra que comparar.
+MATERIAS_CON_HISTORIAL = [
+    "Desarrollo de Software",
+    "Fundamentos Teóricos de Informática",
+]
+
+# Materias que los alumnos de la demo ya cursaron y evaluaron. Son distintas de
+# las que tienen encuesta abierta, asi su historial no se confunde con lo
+# pendiente.
+MATERIAS_YA_RESPONDIDAS_POR_LA_DEMO = [
+    "Bases de Datos II",
+    "Paradigmas y Lenguajes de Programación",
 ]
 
 # --- Usuarios reales ----------------------------------------------------------
@@ -506,9 +527,10 @@ def main() -> None:
         inscriptos = {}
         for nombre, (asig, _) in asignaturas.items():
             cohorte = random.sample(alumnos[2:], k=random.randint(14, 19))
-            # Los dos alumnos que entran al sistema cursan las materias que
-            # tienen encuesta abierta.
-            if nombre in MATERIAS_CON_ENCUESTA_ABIERTA:
+            # Los dos alumnos que entran al sistema cursan las materias con
+            # encuesta abierta (lo que les queda por responder) y algunas ya
+            # evaluadas (su historial).
+            if nombre in MATERIAS_CON_ENCUESTA_ABIERTA or nombre in MATERIAS_YA_RESPONDIDAS_POR_LA_DEMO:
                 cohorte = alumnos[:2] + cohorte
             inscriptos[nombre] = cohorte
             for alumno in cohorte:
@@ -524,7 +546,7 @@ def main() -> None:
         # El docente que expone integra ademas otras dos catedras, para que su
         # listado de reportes no tenga una sola fila (RN-04 admite integrantes
         # del equipo, no solo al titular).
-        docente_demo = docentes[MATERIA_EN_VIVO]
+        docente_demo = docentes["Desarrollo de Software"]
         for materia in ("Ingeniería de Software I", "Fundamentos Teóricos de Informática"):
             db.add(Cursada(id_persona=docente_demo.id,
                            id_asignatura=asignaturas[materia][0].id,
@@ -624,10 +646,9 @@ def main() -> None:
             es_c1 = asig.cursado == Cursado.cuatrimestre1
             ventana = ENC_C1_CERRADA if es_c1 else ENC_C2_CERRADA
 
-            # 1) Ciclo anterior, solo para la materia que se expone en vivo:
-            #    alimenta la comparativa interanual. Se siembra un escalon peor
-            #    para que la comparacion muestre mejora.
-            if nombre == MATERIA_EN_VIVO:
+            # 1) Ciclo anterior: alimenta la comparativa interanual. Se
+            #    siembra un escalon peor para que la comparacion muestre mejora.
+            if nombre in MATERIAS_CON_HISTORIAL:
                 enc_ant = EncuestaAsignatura(
                     id_encuesta_base=base.id,
                     id_asignatura=asig.id,
@@ -638,56 +659,58 @@ def main() -> None:
                 )
                 db.add(enc_ant)
                 db.flush()
-                for alumno in random.sample(cohorte, k=min(11, len(cohorte))):
+                # Sin los alumnos de la demo: su historial no tiene que mezclar
+                # la misma materia que hoy les figura como pendiente.
+                cohorte_anterior = [a for a in cohorte if a not in alumnos[:2]]
+                for alumno in random.sample(cohorte_anterior, k=min(11, len(cohorte_anterior))):
                     responder_encuesta(db, enc_ant, alumno, preguntas, po_por_pregunta, "media")
 
-            # 2) Encuesta del ciclo actual, ya cerrada: es la que genero el
-            #    reporte sobre el que trabaja el docente.
-            enc_cerrada = EncuestaAsignatura(
+            # 2) Encuesta del ciclo actual. Cada materia tiene UNA sola: o sigue
+            #    abierta (y todavia no hay reporte) o ya cerro (y lo genero).
+            abierta = nombre in MATERIAS_CON_ENCUESTA_ABIERTA
+            encuesta = EncuestaAsignatura(
                 id_encuesta_base=base.id,
                 id_asignatura=asig.id,
-                fecha_inicio=ventana[0],
-                fecha_fin=ventana[1],
+                fecha_inicio=ENC_ABIERTA[0] if abierta else ventana[0],
+                fecha_fin=ENC_ABIERTA[1] if abierta else ventana[1],
                 ciclo_lectivo=CICLO_ACTUAL,
-                estado=EstadoEncuesta.cerrada,
+                estado=EstadoEncuesta.abierta if abierta else EstadoEncuesta.cerrada,
             )
-            db.add(enc_cerrada)
+            db.add(encuesta)
             db.flush()
+
+            if abierta:
+                # Algunos companeros ya respondieron; los alumnos de la demo no,
+                # asi que les queda pendiente.
+                otros = [a for a in cohorte if a not in alumnos[:2]]
+                for alumno in random.sample(otros, k=min(3, len(otros))):
+                    responder_encuesta(db, encuesta, alumno, preguntas, po_por_pregunta,
+                                       calidad if calidad != "cero" else "media")
+                continue  # sin reporte: lo genera el docente al cerrarla
 
             # calidad "cero": nadie respondio. Es lo que dispara la alerta de
             # baja participacion en el tablero del departamento.
             if calidad != "cero":
                 n = random.randint(max(8, len(cohorte) // 2), len(cohorte) - 2)
-                for alumno in random.sample(cohorte, k=n):
-                    responder_encuesta(db, enc_cerrada, alumno, preguntas,
+                quienes = random.sample(cohorte, k=n)
+                # Los alumnos de la demo responden si, para que su historial no
+                # quede vacio.
+                if nombre in MATERIAS_YA_RESPONDIDAS_POR_LA_DEMO:
+                    for alumno in alumnos[:2]:
+                        if alumno not in quienes:
+                            quienes.append(alumno)
+                for alumno in quienes:
+                    responder_encuesta(db, encuesta, alumno, preguntas,
                                        po_por_pregunta, calidad)
 
-            reporte = Reporte(id_encuesta_asignatura=enc_cerrada.id)
+            reporte = Reporte(id_encuesta_asignatura=encuesta.id)
             db.add(reporte)
             db.flush()
             reportes[nombre] = reporte
 
-            # 3) Encuesta abierta hoy: el trabajo pendiente del alumno.
-            if nombre in MATERIAS_CON_ENCUESTA_ABIERTA:
-                enc_abierta = EncuestaAsignatura(
-                    id_encuesta_base=base.id,
-                    id_asignatura=asig.id,
-                    fecha_inicio=ENC_ABIERTA[0],
-                    fecha_fin=ENC_ABIERTA[1],
-                    ciclo_lectivo=CICLO_ACTUAL,
-                    estado=EstadoEncuesta.abierta,
-                )
-                db.add(enc_abierta)
-                db.flush()
-                # Algunos companeros ya respondieron; los alumnos que entran a
-                # la demo no, asi que les queda pendiente.
-                otros = [a for a in cohorte if a not in alumnos[:2]]
-                for alumno in random.sample(otros, k=min(3, len(otros))):
-                    responder_encuesta(db, enc_abierta, alumno, preguntas,
-                                       po_por_pregunta, calidad if calidad != "cero" else "media")
-
-            db.commit()
-        log(f"{len(reportes)} reportes generados sobre encuestas cerradas")
+        db.commit()
+        log(f"{len(reportes)} reportes generados; "
+            f"{len(MATERIAS_CON_ENCUESTA_ABIERTA)} encuestas siguen abiertas")
 
         # --- Informes curriculares ya presentados ----------------------------
         textos_informe = [
@@ -706,8 +729,10 @@ def main() -> None:
 
         informes_creados = 0
         for nombre, (asig, _) in asignaturas.items():
-            if nombre == MATERIA_EN_VIVO:
-                continue  # queda abierto: es el paso en vivo del docente
+            if nombre not in reportes:
+                continue  # su encuesta sigue abierta, todavia no hay reporte
+            if nombre == MATERIA_REPORTE_SIN_INFORME:
+                continue  # queda sin informe: es el paso en vivo del docente
             # Analisis Matematico lo dicta Claudia Lopez, que en el sistema
             # figura con el rol de departamento, no con el de docente.
             autor = docentes.get(nombre, depto)
@@ -733,7 +758,7 @@ def main() -> None:
             informes_creados += 1
         db.commit()
         log(f"{informes_creados} informes curriculares cerrados "
-            f"(queda abierto el de {MATERIA_EN_VIVO})")
+            f"(queda sin informe el de {MATERIA_REPORTE_SIN_INFORME})")
 
         # --- Informe sintetico del 1.er cuatrimestre, ya presentado ----------
         # El del 2.º cuatrimestre queda pendiente a proposito: es el paso en

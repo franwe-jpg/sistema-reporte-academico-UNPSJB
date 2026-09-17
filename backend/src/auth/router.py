@@ -11,7 +11,14 @@ from src.personas.models import Persona
 from src.seguridad.models import RoleName
 from src.seguridad.services import SeguridadService
 
-from .schemas import LoginIn, RegistroIn, RegistroOut, TokenOut
+from .schemas import (
+    LoginIn,
+    RecuperarPasswordIn,
+    RecuperarPasswordOut,
+    RegistroIn,
+    RegistroOut,
+    TokenOut,
+)
 from .services import crear_access_token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -91,4 +98,30 @@ def registro(datos: RegistroIn, db: Session = Depends(get_db)):
         apellido=persona.apellido,
         access_token=crear_access_token({"persona_id": persona.id}),
         asignaturas_inscriptas=len(asignaturas_abiertas),
+    )
+
+
+@router.post("/recuperar-password", response_model=RecuperarPasswordOut)
+def recuperar_password(datos: RecuperarPasswordIn, db: Session = Depends(get_db)):
+    """Restablece la contrasena de una persona a partir de su DNI.
+
+    El campo `password_recordada` se pide en el formulario como verificacion
+    informal, pero no se compara contra nada ni se almacena.
+    """
+    persona = db.query(Persona).filter(Persona.dni == datos.dni).first()
+    if not persona:
+        raise HTTPException(
+            status_code=404,
+            detail="No encontramos una persona registrada con ese DNI",
+        )
+
+    persona.set_password(datos.password_nueva)
+    db.add(persona)
+    db.commit()
+    db.refresh(persona)
+
+    return RecuperarPasswordOut(
+        persona_id=persona.id,
+        nombre=persona.nombre,
+        apellido=persona.apellido,
     )

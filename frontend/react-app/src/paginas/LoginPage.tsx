@@ -5,7 +5,7 @@ import apiFetch from "../api/client.ts";
 import fondoLogin from "../assets/fondoLogin.jpg";
 import "../styles/loginPage.css";
 
-type Modo = "login" | "alta";
+type Modo = "login" | "alta" | "recupero";
 
 export default function LoginPage() {
   const [modo, setModo] = useState<Modo>("login");
@@ -17,6 +17,13 @@ export default function LoginPage() {
   const [nuevoApellido, setNuevoApellido] = useState("");
   const [nuevoDni, setNuevoDni] = useState("");
   const [nuevaPassword, setNuevaPassword] = useState("");
+
+  const [recDni, setRecDni] = useState("");
+  const [recPasswordVieja, setRecPasswordVieja] = useState("");
+  const [recPasswordNueva, setRecPasswordNueva] = useState("");
+  // El tercer campo recién aparece cuando los dos primeros están completos.
+  const [recPasoDos, setRecPasoDos] = useState(false);
+  const [recOk, setRecOk] = useState("");
 
   const [errorMsg, setErrorMsg] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -33,6 +40,8 @@ export default function LoginPage() {
   const cambiarModo = (siguiente: Modo) => {
     setModo(siguiente);
     setErrorMsg("");
+    setRecOk("");
+    setRecPasoDos(false);
   };
 
   /**
@@ -132,6 +141,53 @@ export default function LoginPage() {
     }
   };
 
+  const handleRecuperoPaso1 = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setRecPasoDos(true);
+  };
+
+  const handleRecupero = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setEnviando(true);
+
+    try {
+      const res = await apiFetch("/auth/recuperar-password", {
+        method: "POST",
+        body: JSON.stringify({
+          dni: Number(recDni),
+          password_recordada: recPasswordVieja,
+          password_nueva: recPasswordNueva,
+        }),
+      });
+
+      if (res.status === 404) {
+        setErrorMsg("No encontramos una persona registrada con ese DNI");
+        return;
+      }
+
+      if (!res.ok) {
+        setErrorMsg("No se pudo cambiar la contraseña. Intentá de nuevo.");
+        return;
+      }
+
+      const data = await res.json();
+      setRecOk(`Contraseña actualizada para ${data.nombre} ${data.apellido}. Ya podés iniciar sesión.`);
+      setDni(recDni);
+      setPassword("");
+      setRecPasswordVieja("");
+      setRecPasswordNueva("");
+      setRecPasoDos(false);
+      setModo("login");
+    } catch (err) {
+      console.error(err);
+      setErrorMsg("Ocurrió un error al cambiar la contraseña");
+    } finally {
+      setEnviando(false);
+    }
+  };
+
   return (
     <div
       className="login-background d-flex justify-content-center align-items-center"
@@ -145,7 +201,7 @@ export default function LoginPage() {
           (animate ? "login-form-animate" : "login-form-start")
         }
       >
-        {modo === "login" ? (
+        {modo === "login" && (
           <form
             className="p-4 border rounded shadow bg-white"
             onSubmit={handleSubmit}
@@ -177,6 +233,7 @@ export default function LoginPage() {
               />
             </div>
 
+            {recOk && <p className="text-success">{recOk}</p>}
             {errorMsg && <p className="text-danger">{errorMsg}</p>}
 
             <button
@@ -196,12 +253,18 @@ export default function LoginPage() {
                 Solicitar alta de nuevo usuario
               </button>
               |
-              <a href="#" className="ms-2">
+              <button
+                type="button"
+                className="btn btn-link p-0 ms-2 align-baseline"
+                onClick={() => cambiarModo("recupero")}
+              >
                 ¿Olvidaste tu contraseña?
-              </a>
+              </button>
             </div>
           </form>
-        ) : (
+        )}
+
+        {modo === "alta" && (
           <form
             className="p-4 border rounded shadow bg-white"
             onSubmit={handleAlta}
@@ -270,6 +333,83 @@ export default function LoginPage() {
               disabled={enviando}
             >
               {enviando ? "Creando..." : "Crear usuario e ingresar"}
+            </button>
+
+            <div className="text-center mt-3" style={{ fontSize: "0.9rem" }}>
+              <button
+                type="button"
+                className="btn btn-link p-0 align-baseline"
+                onClick={() => cambiarModo("login")}
+              >
+                Volver a iniciar sesión
+              </button>
+            </div>
+          </form>
+        )}
+
+        {modo === "recupero" && (
+          <form
+            className="p-4 border rounded shadow bg-white"
+            onSubmit={recPasoDos ? handleRecupero : handleRecuperoPaso1}
+          >
+            <h2 className="text-center mb-2">Recuperar contraseña</h2>
+            <h6 className="text-center mb-4 text-muted">
+              Sistema de Analisis Academico
+            </h6>
+
+            <div className="mb-3">
+              <label>DNI</label>
+              <input
+                type="number"
+                className="form-control"
+                value={recDni}
+                onChange={(e) => setRecDni(e.target.value)}
+                placeholder="ej: 40123456"
+                disabled={recPasoDos}
+                required
+              />
+            </div>
+
+            <div className="mb-3">
+              <label>Última contraseña que recuerdes</label>
+              <input
+                type="password"
+                className="form-control"
+                value={recPasswordVieja}
+                onChange={(e) => setRecPasswordVieja(e.target.value)}
+                placeholder="la que tengas presente"
+                disabled={recPasoDos}
+                required
+              />
+            </div>
+
+            {recPasoDos && (
+              <div className="mb-3">
+                <label>Nueva contraseña</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  value={recPasswordNueva}
+                  onChange={(e) => setRecPasswordNueva(e.target.value)}
+                  placeholder="la que quieras usar de ahora en más"
+                  autoFocus
+                  required
+                />
+              </div>
+            )}
+
+            {errorMsg && <p className="text-danger">{errorMsg}</p>}
+
+            <button
+              className="btn btn-primary w-100 mt-3"
+              type="submit"
+              disabled={enviando}
+            >
+              {recPasoDos
+                ? enviando
+                  ? "Guardando..."
+                  : "Guardar nueva contraseña"
+                : "Continuar"}
             </button>
 
             <div className="text-center mt-3" style={{ fontSize: "0.9rem" }}>
